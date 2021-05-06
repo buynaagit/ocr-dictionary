@@ -48,7 +48,8 @@ target 'hippodic' do
   ]
   pod 'GoogleMLKit/TextRecognition'
   pod 'Firebase/Analytics'
-  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
+  
 
   target 'hippodicTests' do
     inherit! :complete
