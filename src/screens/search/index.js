@@ -27,10 +27,13 @@ import WordDefinition from '../../components/wordDef';
 import Header from '../../components/header';
 import commonStyles from '../../../commonStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/Ionicons';
+import {images, icons, COLORS, SIZES, FONTS} from '../../constants';
 
 // 20200502 JustCode: Import the camera module
 import Camera, {Constants} from '../../components/camera';
 import WordSelector from '../../components/wordSelector';
+import {color} from 'react-native-reanimated';
 
 class Search extends React.Component {
   constructor(props) {
@@ -147,17 +150,23 @@ class Search extends React.Component {
         <SafeAreaView style={commonStyles.content}>
           <Header
             navigation={this.props.navigation}
-            Title={'My Dictionary'}
+            Title={'Hippocards dictionary'}
             isAtRoot={true}
           />
           <ScrollView contentInsetAdjustmentBehavior="automatic">
             <View style={[commonStyles.column, commonStyles.header]}>
-              {/* <Image
-                style={commonStyles.logo}
-                source={require('../../../assets/icon.png')}
-              /> */}
-              <Text style={commonStyles.sectionTitle}>
-                Just Code Dictionary
+              <View style={{paddingBottom: 10}}>
+                <Image
+                  style={commonStyles.logo}
+                  source={require('../../../assets/hippologooo.png')}
+                />
+              </View>
+              <Text
+                style={{
+                  color: COLORS.brand,
+                  ...FONTS.text3,
+                }}>
+                TEXT DETECTION
               </Text>
             </View>
 
@@ -167,27 +176,46 @@ class Search extends React.Component {
                  TextInput & TouchableOpacity will be wrapped with a new View.
              */}
             <View style={styles.searchBox}>
-              <TextInput
-                style={styles.searchInput}
-                onChangeText={text => this.onUserWordChange(text)}
-                placeholder={'Key in the word to search'}
-                value={this.state.userWord}
-              />
               <TouchableOpacity
                 style={styles.searchCamera}
                 onPress={() => {
                   this.setState({showCamera: true});
                 }}>
-                <Icon name="ios-camera" size={25} color="#22222288" />
+                <Icon name="ios-camera" size={25} color={COLORS.brand} />
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.searchCamera}
+                onPress={() => this.onSearch()}>
+                <Icon2 name="search" size={25} color={COLORS.brand} />
+              </TouchableOpacity>
+              <TextInput
+                style={styles.searchInput}
+                onChangeText={text => this.onUserWordChange(text)}
+                placeholder={'Key in the word to search'}
+                placeholderTextColor="gray"
+                value={this.state.userWord}
+              />
             </View>
 
             <View style={{minHeight: 10, maxHeight: 10}}></View>
-
-            <Button title="Search" onPress={() => this.onSearch()} />
+            {/* <View
+              style={{
+                borderRadius: 10,
+                width: 100,
+                alignSelf: 'center',
+                backgroundColor: COLORS.brand,
+              }}>
+              <Button
+                title="search"
+                color="white"
+                onPress={() => this.onSearch()}
+              />
+            </View> */}
 
             {this.state.errorMsg.length > 0 && (
-              <Text style={commonStyles.errMsg}>{this.state.errorMsg}</Text>
+              <View style={{marginHorizontal: 20}}>
+                <Text style={commonStyles.errMsg}>{this.state.errorMsg}</Text>
+              </View>
             )}
 
             {/* Display word definition as custom component */}
@@ -249,14 +277,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 40,
     borderColor: 'gray',
-    borderWidth: 1,
+    backgroundColor: '#E3E1E1',
     paddingLeft: 4,
     paddingRight: 4,
     paddingTop: 2,
     paddingBottom: 2,
+    borderRadius: 18,
+    marginHorizontal: 20,
   },
   searchInput: {
-    padding: 0,
+    padding: 10,
     flex: 1,
   },
   // 20200502 - JustCode:

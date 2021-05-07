@@ -6,9 +6,11 @@ import {
   View,
   Text,
   Button,
+  TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
-
+import {COLORS, SIZES, FONTS} from '../../constants';
+import Icon from 'react-native-vector-icons/AntDesign';
 export default class WordSelector extends Component {
   state = {
     selectedWordIdx: -1,
@@ -69,30 +71,52 @@ export default class WordSelector extends Component {
   render() {
     return (
       <View style={[styles.container, this.props.style]}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>
-            Please select a word below and click on the Ok button.
-          </Text>
+        {/* <View style={{position: 'absolute', left: 10, margin: 10}}>
+          <TouchableOpacity
+            style={styles.searchCamera}
+            onPress={() => {
+              navigation.navigate('textDetection');
+            }}>
+            <Icon name="arrowleft" size={25} color={COLORS.brand} />
+          </TouchableOpacity>
+        </View> */}
+        <View
+          style={{
+            borderRadius: 14,
+            backgroundColor: COLORS.brand,
+            width: '50%',
+            alignSelf: 'center',
+            marginTop: 10,
+          }}>
+          <Button
+            title="СОНГОХ"
+            color="white"
+            disabled={
+              !(
+                this.state.selectedWordIdx >= 0 &&
+                this.state.wordList &&
+                this.state.wordList.length > this.state.selectedWordIdx
+              )
+            }
+            onPress={() => {
+              this.props.onWordSelected &&
+                this.props.onWordSelected(
+                  this.state.wordList[this.state.selectedWordIdx],
+                );
+            }}
+          />
         </View>
-        <ScrollView>
-          <View style={styles.wordList}>{this.populateWords()}</View>
-        </ScrollView>
-        <Button
-          title="OK"
-          disabled={
-            !(
-              this.state.selectedWordIdx >= 0 &&
-              this.state.wordList &&
-              this.state.wordList.length > this.state.selectedWordIdx
-            )
-          }
-          onPress={() => {
-            this.props.onWordSelected &&
-              this.props.onWordSelected(
-                this.state.wordList[this.state.selectedWordIdx],
-              );
-          }}
-        />
+        <View
+          style={{
+            borderColor: COLORS.brand,
+            borderRightWidth: 1,
+            borderLeftWidth: 1,
+          }}>
+          <ScrollView>
+            <View style={styles.wordList}>{this.populateWords()}</View>
+          </ScrollView>
+        </View>
+
         <View style={{minHeight: 30}}></View>
       </View>
     );
@@ -117,14 +141,21 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     backgroundColor: 'white',
+    paddingHorizontal: 10,
   },
   header: {
     padding: 4,
+    borderRadius: 12,
+    backgroundColor: COLORS.brand,
   },
   headerText: {
-    fontSize: 20,
+    ...FONTS.text3,
+    textAlign: 'center',
+    color: 'white',
   },
   wordList: {
+    paddingBottom: 70,
+    paddingTop: 10,
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -132,9 +163,9 @@ const styles = StyleSheet.create({
   },
   selectedWord: {
     flex: 0,
-    borderWidth: 1,
-    borderColor: 'blue',
-    backgroundColor: '#d6f9ff',
+    borderRadius: 10,
+    borderColor: COLORS.brand,
+    backgroundColor: COLORS.brand,
     padding: 4,
   },
   nonSelectedWord: {
@@ -143,11 +174,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   word: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...FONTS.text5,
   },
   okButton: {
-    marginBottom: 50,
     fontSize: 30,
   },
 });

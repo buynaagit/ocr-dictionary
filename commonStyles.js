@@ -23,7 +23,7 @@ const commonStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#219bd9',
+    // color: COLORS.white,
   },
   logo: {
     width: 100,
