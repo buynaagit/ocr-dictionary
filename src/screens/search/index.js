@@ -100,7 +100,7 @@ class Search extends React.Component {
           }
         } else {
           this.setState({
-            errorMsg: 'Үг олдсонгүй',
+            errorMsg: 'Үг олдсонгүйs',
             loading: false,
             definition: null,
           });
