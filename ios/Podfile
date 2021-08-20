@@ -49,8 +49,6 @@ target 'hippodic' do
   pod 'GoogleMLKit/TextRecognition'
   pod 'Firebase/Analytics'
 
-  
-
   target 'hippodicTests' do
     inherit! :complete
     # Pods for testing

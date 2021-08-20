@@ -212,7 +212,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-analytics:19.0.0'
+    
      implementation 'com.android.support:multidex:1.0.3'
 }
 

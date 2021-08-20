@@ -100,7 +100,7 @@ class Search extends React.Component {
           }
         } else {
           this.setState({
-            errorMsg: 'Invalid word. Please specify a valid word.',
+            errorMsg: 'Үг олдсонгүй',
             loading: false,
             definition: null,
           });
