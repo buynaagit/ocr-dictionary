@@ -29,6 +29,8 @@ import commonStyles from '../../../commonStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon2 from 'react-native-vector-icons/Ionicons';
 import {images, icons, COLORS, SIZES, FONTS} from '../../constants';
+import translate from 'translate-google-api';
+
 
 // 20200502 JustCode: Import the camera module
 import Camera, {Constants} from '../../components/camera';
