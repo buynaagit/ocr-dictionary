@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+
 import PropTypes from 'prop-types';
 import Helper from '../../lib/helper';
 import Sound from 'react-native-sound';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default WordDefinition = ({def, hideFav}) => {
+const WordDefinition = ({def, hideFav}) => {
   const [loadingMp3, setLoadingMp3] = useState(false);
   const [isFav, setIsFav] = useState(false);
 
@@ -246,3 +247,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+export default WordDefinition;

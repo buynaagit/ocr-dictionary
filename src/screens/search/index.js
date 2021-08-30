@@ -101,11 +101,14 @@ class Search extends React.Component {
     return (
       <>
         <SafeAreaView style={commonStyles.content}>
-          <Header
-            navigation={this.props.navigation}
-            Title={'Hippocards dictionary'}
-            isAtRoot={true}
-          />
+          <TouchableOpacity onPress={{}}>
+            <Icon
+              name="arrow-back-outline"
+              size={25}
+              color={'black'}
+              style={{padding: 10}}
+            />
+          </TouchableOpacity>
           <ScrollView contentInsetAdjustmentBehavior="automatic">
             <View style={[commonStyles.column, commonStyles.header]}>
               <View style={{paddingBottom: 10}}>

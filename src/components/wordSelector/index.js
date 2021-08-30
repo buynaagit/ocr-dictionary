@@ -11,6 +11,7 @@ import {
 import PropTypes from 'prop-types';
 import {COLORS, SIZES, FONTS} from '../../constants';
 import Icon from 'react-native-vector-icons/AntDesign';
+
 export default class WordSelector extends Component {
   state = {
     selectedWordIdx: -1,

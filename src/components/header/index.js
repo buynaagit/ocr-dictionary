@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default Header = ({
-  navigation,
-  LeftButton,
-  RightButton,
-  Title,
-  isAtRoot,
-}) => {
+const Header = ({navigation, LeftButton, RightButton, Title, isAtRoot}) => {
   return (
     <View style={styles.header}>
       <View style={styles.leftButton}>
@@ -84,3 +78,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default Header;
