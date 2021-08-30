@@ -1,4 +1,5 @@
 import Helper from './helper';
+import translate from 'translate-google-api';
 
 const baseURL = 'https://od-api.oxforddictionaries.com/api/v2';
 const oxfordAuth = {

@@ -31,7 +31,6 @@ import Icon2 from 'react-native-vector-icons/Ionicons';
 import {images, icons, COLORS, SIZES, FONTS} from '../../constants';
 import translate from 'translate-google-api';
 
-
 // 20200502 JustCode: Import the camera module
 import Camera, {Constants} from '../../components/camera';
 import WordSelector from '../../components/wordSelector';
@@ -53,77 +52,29 @@ class Search extends React.Component {
     };
   }
 
-  onUserWordChange(text) {
-    this.setState({userWord: text});
-  }
-
   async onSearch() {
     if (this.state.userWord.length <= 0) {
-      this.setState({errorMsg: 'Please specify the word to lookup.'});
+      this.setState({errorMsg: 'Хайх хэсэгт үгээ оруулна уу.'});
       return;
     }
-
-    try {
-      this.setState({loading: true});
-      let lemmas = await Api.getLemmas(this.state.userWord);
-      console.log('Lemmas: ', lemmas);
-      if (lemmas.success) {
-        let headWord = Helper.carefullyGetValue(
-          lemmas,
-          [
-            'payload',
-            'results',
-            '0',
-            'lexicalEntries',
-            '0',
-            'inflectionOf',
-            '0',
-            'id',
-          ],
-          '',
-        );
-        console.log('Headword is: ', headWord);
-        if (headWord.length > 0) {
-          let wordDefinition = await Api.getDefinition(headWord);
-          if (wordDefinition.success) {
-            this.setState({
-              errorMsg: '',
-              loading: false,
-              definition: wordDefinition.payload,
-            });
-            console.log('Word Definition: ', wordDefinition.payload);
-          } else {
-            this.setState({
-              errorMsg:
-                'Unable to get result from Oxford: ' + wordDefinition.message,
-              loading: false,
-              definition: null,
-            });
-          }
-        } else {
-          this.setState({
-            errorMsg: 'Үг олдсонгүйs',
-            loading: false,
-            definition: null,
-          });
-        }
-      } else {
-        this.setState({
-          errorMsg: 'Unable to get result from Oxford: ' + lemmas.message,
-          loading: false,
-          definition: null,
-        });
-      }
-    } catch (error) {
-      console.log('Error: ', error);
+    const result = await translate(this.state.userWord, {
+      tld: 'cn',
+      to: 'mn',
+    });
+    if (this.state.userWord) {
+      console.log(`result`, result);
       this.setState({
         loading: false,
-        errorMsg: error.message,
-        definition: null,
+        errorMsg: result,
       });
     }
   }
 
+  onUserWordChange(text) {
+    this.setState({userWord: text});
+  }
+
+  // this.state.userWord
   // 20200502 JustCode:
   // Receive the recogonizedText from the Camera module
   onOCRCapture(recogonizedText) {
@@ -200,20 +151,21 @@ class Search extends React.Component {
             </View>
 
             <View style={{minHeight: 10, maxHeight: 10}}></View>
-            {/* <View
+
+            <View
               style={{
                 borderRadius: 10,
                 width: 100,
                 alignSelf: 'center',
                 backgroundColor: COLORS.brand,
+                marginVertical: 10,
               }}>
               <Button
-                title="search"
+                title="Хайх"
                 color="white"
                 onPress={() => this.onSearch()}
               />
-            </View> */}
-
+            </View>
             {this.state.errorMsg.length > 0 && (
               <View style={{marginHorizontal: 20}}>
                 <Text style={commonStyles.errMsg}>{this.state.errorMsg}</Text>
