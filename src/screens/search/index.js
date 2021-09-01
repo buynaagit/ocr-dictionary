@@ -111,12 +111,6 @@ class Search extends React.Component {
           </TouchableOpacity>
           <ScrollView contentInsetAdjustmentBehavior="automatic">
             <View style={[commonStyles.column, commonStyles.header]}>
-              <View style={{paddingBottom: 10}}>
-                <Image
-                  style={commonStyles.logo}
-                  source={require('../../../assets/hippologooo.png')}
-                />
-              </View>
               <Text
                 style={{
                   color: COLORS.brand,
@@ -164,7 +158,7 @@ class Search extends React.Component {
                 marginVertical: 10,
               }}>
               <Button
-                title="Хайх"
+                title="хайх"
                 color="white"
                 onPress={() => this.onSearch()}
               />

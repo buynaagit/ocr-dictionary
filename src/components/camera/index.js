@@ -69,7 +69,7 @@ export default class Camera extends Component {
           whiteBalance={this.props.whiteBalance}
           androidCameraPermissionOptions={{
             title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
+            message: 'Камераар зураг авах зөвшөөөрөл өгөх',
             buttonPositive: 'Ok',
             buttonNegative: 'Cancel',
           }}

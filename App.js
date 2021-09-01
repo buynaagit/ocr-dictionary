@@ -4,15 +4,19 @@ import {View, Text, StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import TextDetection from './src/screens/search/index';
+import WordSelector from './src/components/wordSelector/index';
 
 const Stack = createStackNavigator();
 // create a component
 const MyComponent = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="textDetection">
-        <Stack.Screen name="textDetection" component={TextDetection} />
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+        initialRouteName="wordSelector">
+        <Stack.Screen name="wordSelector" component={WordSelector} />
       </Stack.Navigator>
     </NavigationContainer>
   );

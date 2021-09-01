@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import {
   StyleSheet,
   TouchableHighlight,
@@ -7,28 +8,56 @@ import {
   Text,
   Button,
   TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  SafeAreaView,
 } from 'react-native';
-import PropTypes from 'prop-types';
+
 import {COLORS, SIZES, FONTS} from '../../constants';
-import Icon from 'react-native-vector-icons/AntDesign';
+import Icon from 'react-native-vector-icons/Ionicons';
+import Helper from '../../lib/helper';
+import Camera, {Constants} from '../../components/camera';
+import commonStyles from '../../../commonStyles';
+import translate from 'translate-google-api';
+import Modal from 'react-native-modal';
+import {hp, wp} from '../../constants/theme';
+
+let whichLang = 'mn';
 
 export default class WordSelector extends Component {
   state = {
     selectedWordIdx: -1,
     wordList: null,
+    userWord: '',
+    errorMsg: '',
+    loading: false,
+    definition: null,
+    showCamera: false,
+    showWordList: false,
+    recogonizedText: null,
+    selectedWord: null,
+    modalShown: false,
+    translatedWord: null,
+    startingIdx: null,
+    endingIdx: null,
+    mySentence: [],
   };
 
   componentDidMount() {
+    // Break down all the words detected by the camera
+  }
+
+  onOCRCapture(recogonizedText) {
     let wordList = [];
 
-    // Break down all the words detected by the camera
     if (
-      this.props.wordBlock &&
-      this.props.wordBlock.textBlocks &&
-      this.props.wordBlock.textBlocks.length > 0
+      recogonizedText &&
+      recogonizedText.textBlocks &&
+      recogonizedText.textBlocks.length > 0
     ) {
-      for (let idx = 0; idx < this.props.wordBlock.textBlocks.length; idx++) {
-        let text = this.props.wordBlock.textBlocks[idx].value;
+      for (let idx = 0; idx < recogonizedText.textBlocks.length; idx++) {
+        let text = recogonizedText.textBlocks[idx].value;
         if (text && text.trim().length > 0) {
           let words = text.split(/[\s,.?]+/);
           if (words && words.length > 0) {
@@ -40,24 +69,99 @@ export default class WordSelector extends Component {
       }
 
       this.setState({wordList: wordList});
+      console.log(`wordList`, wordList);
     }
+    console.log('onCapture', recogonizedText);
+    this.setState({
+      showCamera: false,
+      showWordList: Helper.isNotNullAndUndefined(recogonizedText),
+      recogonizedText: recogonizedText,
+    });
   }
 
-  // Pupulate the words UI for the user to select
-  populateWords() {
-    const wordViews = [];
+  async _transleFunction(idx) {
+    const result = await translate(this.state.wordList[idx], {
+      tld: 'cn',
+      to: whichLang,
+    });
+    console.log(`result`, result);
+    this.setState({
+      translatedWord: result,
+    });
+  }
 
+  async _transleFunctionSentence(words) {
+    let tempArr = [];
+    this.setState({translateLoad: true});
+    console.log(`words`, words);
+    const result = await translate(
+      words.map(e => e.word),
+      {
+        tld: 'cn',
+        to: whichLang,
+      },
+    );
+    console.log(`result`, result);
+    for (let i = 0; i < result.length; i++) {
+      tempArr.push(result[i] + ' ');
+    }
+    await this.setState({
+      translatedWord: tempArr,
+      translateLoad: false,
+    });
+  }
+
+  populateWords = () => {
+    const wordViews = [];
     if (this.state.wordList && this.state.wordList.length > 0) {
       for (let idx = 0; idx < this.state.wordList.length; idx++) {
         wordViews.push(
           <TouchableHighlight
             key={'Word_' + idx}
-            underlayColor={'#d6f9ff'}
-            onPress={() => {
-              this.setState({selectedWordIdx: idx});
+            underlayColor={COLORS.brand}
+            onPress={async () => {
+              // this._transleFunction(idx);
+              if (this.state.startingIdx == null) {
+                await this.setState({startingIdx: idx});
+                console.log(`starting`, this.state.startingIdx);
+              } else if (this.state.endingIdx == null) {
+                await this.setState({endingIdx: idx});
+                this.createSentence();
+                console.log(`ending`, this.state.endingIdx);
+              } else if (idx > this.state.endingIdx) {
+                await this.setState({endingIdx: idx});
+                console.log(`ending renewed`, this.state.endingIdx);
+                this.createSentence();
+              } else if (idx < this.state.startingIdx) {
+                await this.setState({startingIdx: idx});
+                console.log(`starting renewed`, this.state.startingIdx);
+              } else if (
+                idx < this.state.endingIdx &&
+                idx > (this.state.endingIdx + this.state.startingIdx) / 2
+              ) {
+                await this.setState({endingIdx: idx});
+                console.log(`ending renewed`, this.state.endingIdx);
+                this.createSentence();
+              } else if (
+                idx > this.state.startingIdx &&
+                idx < (this.state.endingIdx + this.state.startingIdx) / 2
+              ) {
+                await this.setState({startingIdx: idx});
+                console.log(`starting renewed`, this.state.startingIdx);
+                this.createSentence();
+              }
             }}
+            onLongPress={async () => {
+              await this._transleFunction(idx);
+              this.setState({modalShown: true});
+            }}
+            // onPress={() => {
+            //   this.setState({selectedWordIdx: idx});
+            // }}
             style={
-              this.state.selectedWordIdx == idx
+              this.state.startingIdx != null &&
+              this.state.startingIdx <= idx &&
+              this.state.mySentence[idx - this.state.startingIdx]?.selected
                 ? styles.selectedWord
                 : styles.nonSelectedWord
             }>
@@ -68,80 +172,251 @@ export default class WordSelector extends Component {
     }
 
     return wordViews;
+  };
+
+  createSentence = async () => {
+    const mySentence = [];
+    let myWords = this.state.wordList;
+    if (this.state.startingIdx && this.state.endingIdx != null) {
+      let slicedWords = myWords.slice(
+        this.state.startingIdx,
+        this.state.endingIdx + 1,
+      );
+      if (slicedWords.length > 0) {
+        for (let i = 0; i < slicedWords.length; i++) {
+          mySentence.push({word: slicedWords[i], selected: true});
+        }
+      }
+      await this.setState({mySentence: mySentence});
+      console.log(`mySentence`, this.state.mySentence);
+    }
+    return mySentence;
+  };
+
+  clearSelected() {
+    this.setState({startingIdx: null, mySentence: [], endingIdx: null});
   }
+
   render() {
     return (
-      <View style={[styles.container, this.props.style]}>
-        {/* <View style={{position: 'absolute', left: 10, margin: 10}}>
-          <TouchableOpacity
-            style={styles.searchCamera}
-            onPress={() => {
-              navigation.navigate('textDetection');
-            }}>
-            <Icon name="arrowleft" size={25} color={COLORS.brand} />
-          </TouchableOpacity>
-        </View> */}
-        <View
-          style={{
-            borderRadius: 14,
-            backgroundColor: COLORS.brand,
-            width: '50%',
-            alignSelf: 'center',
-            marginTop: 10,
-          }}>
-          <Button
-            title="СОНГОХ"
-            color="white"
-            disabled={
-              !(
-                this.state.selectedWordIdx >= 0 &&
-                this.state.wordList &&
-                this.state.wordList.length > this.state.selectedWordIdx
-              )
-            }
-            onPress={() => {
-              this.props.onWordSelected &&
-                this.props.onWordSelected(
-                  this.state.wordList[this.state.selectedWordIdx],
-                );
-            }}
-          />
-        </View>
-        <View
-          style={{
-            borderColor: COLORS.brand,
-            borderRightWidth: 1,
-            borderLeftWidth: 1,
-          }}>
-          <ScrollView>
-            <View style={styles.wordList}>{this.populateWords()}</View>
-          </ScrollView>
-        </View>
+      <>
+        <SafeAreaView style={[styles.container, this.props.style]}>
+          <View style={{marginTop: hp(3)}}>
+            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'mn';
+                }}>
+                <Image
+                  source={require('../../../assets/mongolia.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
 
-        <View style={{minHeight: 30}}></View>
-      </View>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'fr';
+                }}>
+                <Image
+                  source={require('../../../assets/france.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'ru';
+                }}>
+                <Image
+                  source={require('../../../assets/russia.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'it';
+                }}>
+                <Image
+                  source={require('../../../assets/italy.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'sv';
+                }}>
+                <Image
+                  source={require('../../../assets/sweden.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'de';
+                }}>
+                <Image
+                  source={require('../../../assets/germany.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'ko';
+                }}>
+                <Image
+                  source={require('../../../assets/south-korea.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'cs';
+                }}>
+                <Image
+                  source={require('../../../assets/czech-republic.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+
+              <View>
+                <TouchableOpacity
+                  onPress={() => {
+                    whichLang = 'en';
+                  }}>
+                  <Image
+                    source={require('../../../assets/united-states.png')}
+                    style={styles.countryIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  whichLang = 'tr';
+                }}>
+                <Image
+                  source={require('../../../assets/turkey.png')}
+                  style={styles.countryIcon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View>
+            <ScrollView>
+              <View style={styles.wordList}>{this.populateWords()}</View>
+            </ScrollView>
+          </View>
+          <View style={styles.btnContainer}>
+            <View
+              style={[
+                styles.btnstyle,
+                {justifyContent: 'center', paddingHorizontal: wp(2)},
+              ]}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({showCamera: true});
+                }}>
+                <Icon name="ios-camera" size={25} color={'white'} />
+              </TouchableOpacity>
+            </View>
+            <View style={[styles.btnstyle, {marginHorizontal: wp(2)}]}>
+              <Button
+                title="арилгах"
+                color="white"
+                onPress={() => this.clearSelected()}
+              />
+            </View>
+            <View style={styles.btnstyle}>
+              <Button
+                title="орчуулах"
+                color="white"
+                onPress={() => {
+                  this._transleFunctionSentence(this.state.mySentence);
+                  this.setState({modalShown: true});
+                }}
+              />
+            </View>
+          </View>
+        </SafeAreaView>
+
+        {
+          // 20200502 - JustCode:
+          // Display the camera to capture text
+          this.state.showCamera && (
+            <Camera
+              cameraType={Constants.Type.back}
+              flashMode={Constants.FlashMode.off}
+              autoFocus={Constants.AutoFocus.on}
+              whiteBalance={Constants.WhiteBalance.auto}
+              ratio={'4:3'}
+              quality={0.5}
+              imageWidth={800}
+              enabledOCR={true}
+              onCapture={(data, recogonizedText) =>
+                this.onOCRCapture(recogonizedText)
+              }
+              onClose={_ => {
+                this.setState({showCamera: false});
+              }}
+            />
+          )
+        }
+
+        {this.state.loading && (
+          <ActivityIndicator
+            style={commonStyles.loading}
+            size="large"
+            color={'#219bd9'}
+          />
+        )}
+        <View>
+          <Modal
+            // animationIn={'zoomIn'}
+            // animationOut={'zoomOut'}
+            style={{alignItems: 'center', justifyContent: 'flex-end', top: 20}}
+            isVisible={this.state.modalShown}
+            onBackdropPress={() => {
+              this.setState({modalShown: false});
+            }}>
+            <View style={styles.modalStyle}>
+              {this.translateLoad ? (
+                <ActivityIndicator
+                  style={{justifyContent: 'center', alignItems: 'center'}}
+                  size="small"
+                  color={'#219bd9'}
+                />
+              ) : (
+                <View style={{marginTop: hp(6.5)}}>
+                  <Text
+                    style={
+                      (FONTS.text2, {alignSelf: 'center', textAlign: 'center'})
+                    }>
+                    <Text
+                      style={{
+                        color: COLORS.brand,
+                        fontFamily: 'SFProRounded-Bold',
+                      }}>
+                       ОРЧУУЛГА {`\n\n`}
+                    </Text>
+                    {this.state.translatedWord}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </Modal>
+        </View>
+      </>
     );
   }
 }
 
-WordSelector.propTypes = {
-  wordBlock: PropTypes.object,
-  onWordSelected: PropTypes.func,
-};
-
-WordSelector.defaultProps = {
-  wordBlock: null,
-  onWordSelected: null,
-};
-
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 0,
-    right: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: 'white',
+    right: 0,
+    left: 0,
     paddingHorizontal: 10,
   },
   header: {
@@ -155,8 +430,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   wordList: {
-    paddingBottom: 70,
-    paddingTop: 10,
+    paddingBottom: hp(20),
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -164,7 +438,6 @@ const styles = StyleSheet.create({
   },
   selectedWord: {
     flex: 0,
-    borderRadius: 10,
     borderColor: COLORS.brand,
     backgroundColor: COLORS.brand,
     padding: 4,
@@ -179,5 +452,30 @@ const styles = StyleSheet.create({
   },
   okButton: {
     fontSize: 30,
+  },
+  btnContainer: {
+    position: 'absolute',
+    bottom: 10,
+
+    flexDirection: 'row',
+    alignSelf: 'center',
+    zIndex: 1,
+  },
+  modalStyle: {
+    paddingHorizontal: wp(10),
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    backgroundColor: 'white',
+    width: wp(100),
+    height: hp(30),
+  },
+  countryIcon: {
+    width: 40,
+    height: 40,
+    marginHorizontal: wp(1),
+  },
+  btnstyle: {
+    borderRadius: 8,
+    backgroundColor: COLORS.brand,
   },
 });
