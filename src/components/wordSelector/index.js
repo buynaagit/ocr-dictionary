@@ -57,6 +57,7 @@ export default class WordSelector extends Component {
       recogonizedText.textBlocks &&
       recogonizedText.textBlocks.length > 0
     ) {
+      console.log(`recogonizedText.textBlocks`, recogonizedText.textBlocks);
       for (let idx = 0; idx < recogonizedText.textBlocks.length; idx++) {
         let text = recogonizedText.textBlocks[idx].value;
         if (text && text.trim().length > 0) {
@@ -70,6 +71,7 @@ export default class WordSelector extends Component {
       }
 
       this.setState({wordList: wordList});
+      console.log(`wordList`, wordList);
     }
 
     this.setState({
@@ -109,15 +111,13 @@ export default class WordSelector extends Component {
       newArr.push(tempArr[i].word);
     }
     newArr = newArr.join('-');
-    newArr = newArr.replace(/-/g, ' ');
-
-    this.setState({translateLoad: true});
+    newArr = await newArr.replace(/-/g, ' ');
     const result = await translate(newArr, {
       tld: 'cn',
       to: whichLang,
     });
 
-    await this.setState({
+    this.setState({
       translatedWord: result,
       translateLoad: false,
     });
@@ -159,7 +159,6 @@ export default class WordSelector extends Component {
             }}
             onLongPress={async () => {
               await this._transleFunction(idx);
-              // this.setState({modalShown: true});
               this.myToast();
             }}
             style={
@@ -181,7 +180,7 @@ export default class WordSelector extends Component {
   createSentence = async () => {
     const mySentence = [];
     let myWords = this.state.wordList;
-    if (this.state.startingIdx || this.state.endingIdx != null) {
+    if (this.state.startingIdx && this.state.endingIdx != null) {
       let slicedWords = myWords.slice(
         this.state.startingIdx,
         this.state.endingIdx + 1,
@@ -191,7 +190,7 @@ export default class WordSelector extends Component {
           mySentence.push({word: slicedWords[i], selected: true});
         }
       }
-      await this.setState({mySentence: mySentence});
+      this.setState({mySentence: mySentence});
     }
     return mySentence;
   };
@@ -333,8 +332,8 @@ export default class WordSelector extends Component {
               <Button
                 title="орчуулах"
                 color="white"
-                onPress={() => {
-                  this._transleFunctionSentence(this.state.mySentence);
+                onPress={async () => {
+                  await this._transleFunctionSentence(this.state.mySentence);
                   this.setState({modalShown: true});
                 }}
               />
