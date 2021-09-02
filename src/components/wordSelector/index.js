@@ -22,6 +22,7 @@ import commonStyles from '../../../commonStyles';
 import translate from 'translate-google-api';
 import Modal from 'react-native-modal';
 import {hp, wp} from '../../constants/theme';
+import Toast, {BaseToast} from 'react-native-toast-message';
 
 let whichLang = 'mn';
 
@@ -59,7 +60,7 @@ export default class WordSelector extends Component {
       for (let idx = 0; idx < recogonizedText.textBlocks.length; idx++) {
         let text = recogonizedText.textBlocks[idx].value;
         if (text && text.trim().length > 0) {
-          let words = text.split(/[\s,.?]+/);
+          let words = text.split(/[\s,?]+/);
           if (words && words.length > 0) {
             for (let idx2 = 0; idx2 < words.length; idx2++) {
               if (words[idx2].length > 0) wordList.push(words[idx2]);
@@ -69,9 +70,8 @@ export default class WordSelector extends Component {
       }
 
       this.setState({wordList: wordList});
-      console.log(`wordList`, wordList);
     }
-    console.log('onCapture', recogonizedText);
+
     this.setState({
       showCamera: false,
       showWordList: Helper.isNotNullAndUndefined(recogonizedText),
@@ -79,34 +79,46 @@ export default class WordSelector extends Component {
     });
   }
 
+  myToast = () => {
+    Toast.show({
+      type: 'success',
+      // autoHide: false,
+      // text1: 'орчуулга',
+      text1:
+        this.state.translatedWord != null
+          ? this.state.translatedWord
+          : 'oрчуулж байна.',
+    });
+  };
+
   async _transleFunction(idx) {
     const result = await translate(this.state.wordList[idx], {
       tld: 'cn',
       to: whichLang,
     });
-    console.log(`result`, result);
+
     this.setState({
       translatedWord: result,
     });
   }
 
   async _transleFunctionSentence(words) {
-    let tempArr = [];
-    this.setState({translateLoad: true});
-    console.log(`words`, words);
-    const result = await translate(
-      words.map(e => e.word),
-      {
-        tld: 'cn',
-        to: whichLang,
-      },
-    );
-    console.log(`result`, result);
-    for (let i = 0; i < result.length; i++) {
-      tempArr.push(result[i] + ' ');
+    let tempArr = words;
+    let newArr = [];
+    for (let i = 0; i < tempArr.length; i++) {
+      newArr.push(tempArr[i].word);
     }
+    newArr = newArr.join('-');
+    newArr = newArr.replace(/-/g, ' ');
+
+    this.setState({translateLoad: true});
+    const result = await translate(newArr, {
+      tld: 'cn',
+      to: whichLang,
+    });
+
     await this.setState({
-      translatedWord: tempArr,
+      translatedWord: result,
       translateLoad: false,
     });
   }
@@ -118,46 +130,38 @@ export default class WordSelector extends Component {
         wordViews.push(
           <TouchableHighlight
             key={'Word_' + idx}
-            underlayColor={COLORS.brand}
+            underlayColor={'#80ED99'}
             onPress={async () => {
               // this._transleFunction(idx);
               if (this.state.startingIdx == null) {
                 await this.setState({startingIdx: idx});
-                console.log(`starting`, this.state.startingIdx);
               } else if (this.state.endingIdx == null) {
                 await this.setState({endingIdx: idx});
                 this.createSentence();
-                console.log(`ending`, this.state.endingIdx);
               } else if (idx > this.state.endingIdx) {
                 await this.setState({endingIdx: idx});
-                console.log(`ending renewed`, this.state.endingIdx);
                 this.createSentence();
               } else if (idx < this.state.startingIdx) {
                 await this.setState({startingIdx: idx});
-                console.log(`starting renewed`, this.state.startingIdx);
               } else if (
                 idx < this.state.endingIdx &&
                 idx > (this.state.endingIdx + this.state.startingIdx) / 2
               ) {
                 await this.setState({endingIdx: idx});
-                console.log(`ending renewed`, this.state.endingIdx);
                 this.createSentence();
               } else if (
                 idx > this.state.startingIdx &&
                 idx < (this.state.endingIdx + this.state.startingIdx) / 2
               ) {
                 await this.setState({startingIdx: idx});
-                console.log(`starting renewed`, this.state.startingIdx);
                 this.createSentence();
               }
             }}
             onLongPress={async () => {
               await this._transleFunction(idx);
-              this.setState({modalShown: true});
+              // this.setState({modalShown: true});
+              this.myToast();
             }}
-            // onPress={() => {
-            //   this.setState({selectedWordIdx: idx});
-            // }}
             style={
               this.state.startingIdx != null &&
               this.state.startingIdx <= idx &&
@@ -177,7 +181,7 @@ export default class WordSelector extends Component {
   createSentence = async () => {
     const mySentence = [];
     let myWords = this.state.wordList;
-    if (this.state.startingIdx && this.state.endingIdx != null) {
+    if (this.state.startingIdx || this.state.endingIdx != null) {
       let slicedWords = myWords.slice(
         this.state.startingIdx,
         this.state.endingIdx + 1,
@@ -188,7 +192,6 @@ export default class WordSelector extends Component {
         }
       }
       await this.setState({mySentence: mySentence});
-      console.log(`mySentence`, this.state.mySentence);
     }
     return mySentence;
   };
@@ -386,7 +389,7 @@ export default class WordSelector extends Component {
                   color={'#219bd9'}
                 />
               ) : (
-                <View style={{marginTop: hp(6.5)}}>
+                <ScrollView style={{marginTop: hp(6.5)}}>
                   <Text
                     style={
                       (FONTS.text2, {alignSelf: 'center', textAlign: 'center'})
@@ -400,11 +403,12 @@ export default class WordSelector extends Component {
                     </Text>
                     {this.state.translatedWord}
                   </Text>
-                </View>
+                </ScrollView>
               )}
             </View>
           </Modal>
         </View>
+        <Toast ref={ref => Toast.setRef(ref)} />
       </>
     );
   }
@@ -467,7 +471,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     backgroundColor: 'white',
     width: wp(100),
-    height: hp(30),
+    height: hp(45),
   },
   countryIcon: {
     width: 40,
