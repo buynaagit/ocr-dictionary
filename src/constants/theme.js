@@ -30,6 +30,10 @@ export const FONTS = {
   modalHeaderText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(22)},
   SelectLanguageText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(16)},
   SelectedLanguageText: {fontFamily: 'SFProRounded-Semibold', fontSize: ft(10)},
+  DetectedText: {
+    fontFamily: 'SFProRounded-Regular',
+    fontSize: ft(14),
+  },
 };
 
 export const COLORS = {

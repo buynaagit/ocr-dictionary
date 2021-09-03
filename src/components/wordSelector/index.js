@@ -17,14 +17,16 @@ import Helper from '../../lib/helper';
 import Modal from 'react-native-modal';
 import {hp, wp} from '../../constants/theme';
 import translate from 'translate-google-api';
+import Toast from 'react-native-toast-message';
 import commonStyles from '../../../commonStyles';
 import {COLORS, FONTS, Icons} from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Camera, {Constants} from '../../components/camera';
-import Toast from 'react-native-toast-message';
+import {SelectableText} from '@alentoma/react-native-selectable-text';
 
 let whichLang = 'mn';
 let displayLang = 'MОНГОЛ ХЭЛ';
+let translatedWord = null;
 
 const langImg = {
   mn: require('../../../assets/mongolia.png'),
@@ -53,7 +55,6 @@ export default class WordSelector extends Component {
     selectedWord: null,
     modalShown: false,
     langModal: false,
-    translatedWord: null,
     startingIdx: null,
     endingIdx: null,
     mySentence: [],
@@ -100,113 +101,42 @@ export default class WordSelector extends Component {
       type: 'success',
       // autoHide: false,
       // text1: 'орчуулга',
-      text1:
-        this.state.translatedWord != null
-          ? this.state.translatedWord
-          : 'oрчуулж байна.',
+      text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
     });
   };
 
-  async _transleFunction(idx) {
-    const result = await translate(this.state.wordList[idx], {
-      tld: 'cn',
-      to: whichLang,
-    });
-
-    this.setState({
-      translatedWord: result,
-    });
-  }
-
-  async _transleFunctionSentence(words) {
-    let tempArr = words;
-    let newArr = [];
-    for (let i = 0; i < tempArr.length; i++) {
-      newArr.push(tempArr[i].word);
+  async translateFunction(words) {
+    if (words.indexOf(' ') >= 0) {
+      const result = await translate(words, {
+        to: whichLang,
+      });
+      translatedWord = result;
+      this.setState({
+        modalShown: true,
+      });
+    } else {
+      const result = await translate(words, {
+        to: whichLang,
+      });
+      translatedWord = result;
+      Toast.show({
+        type: 'success',
+        // autoHide: false,
+        // text1: 'орчуулга',
+        text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
+      });
     }
-    newArr = newArr.join('-');
-    newArr = await newArr.replace(/-/g, ' ');
-    const result = await translate(newArr, {
-      // tld: 'cn',
-      to: whichLang,
-    });
-    console.log(`result`, result);
-    this.setState({
-      translatedWord: result,
-      translateLoad: false,
-    });
   }
 
   populateWords = () => {
-    const wordViews = [];
+    let myText = [];
     if (this.state.wordList && this.state.wordList.length > 0) {
-      for (let idx = 0; idx < this.state.wordList.length; idx++) {
-        wordViews.push(
-          <TouchableHighlight
-            key={'Word_' + idx}
-            underlayColor={'#80ED99'}
-            onPress={async () => {
-              // this._transleFunction(idx);
-              if (this.state.startingIdx == null) {
-                await this.setState({startingIdx: idx});
-              } else if (this.state.endingIdx == null) {
-                await this.setState({endingIdx: idx});
-                this.createSentence();
-              } else if (idx > this.state.endingIdx) {
-                await this.setState({endingIdx: idx});
-                this.createSentence();
-              } else if (idx < this.state.startingIdx) {
-                await this.setState({startingIdx: idx});
-              } else if (
-                idx < this.state.endingIdx &&
-                idx > (this.state.endingIdx + this.state.startingIdx) / 2
-              ) {
-                await this.setState({endingIdx: idx});
-                this.createSentence();
-              } else if (
-                idx > this.state.startingIdx &&
-                idx < (this.state.endingIdx + this.state.startingIdx) / 2
-              ) {
-                await this.setState({startingIdx: idx});
-                this.createSentence();
-              }
-            }}
-            onLongPress={async () => {
-              await this._transleFunction(idx);
-              this.myToast();
-            }}
-            style={
-              this.state.startingIdx != null &&
-              this.state.startingIdx <= idx &&
-              this.state.mySentence[idx - this.state.startingIdx]?.selected
-                ? styles.selectedWord
-                : styles.nonSelectedWord
-            }>
-            <Text style={styles.word}>{this.state.wordList[idx]}</Text>
-          </TouchableHighlight>,
-        );
-      }
+      myText = this.state.wordList;
+      myText = myText.join('-');
+      myText = myText.replace(/-/g, ' ');
     }
-
-    return wordViews;
-  };
-
-  createSentence = async () => {
-    const mySentence = [];
-    let myWords = this.state.wordList;
-    if (this.state.startingIdx || this.state.endingIdx != null) {
-      let slicedWords = myWords.slice(
-        this.state.startingIdx,
-        this.state.endingIdx + 1,
-      );
-      if (slicedWords.length > 0) {
-        for (let i = 0; i < slicedWords.length; i++) {
-          mySentence.push({word: slicedWords[i], selected: true});
-        }
-      }
-      this.setState({mySentence: mySentence});
-    }
-    return mySentence;
+    console.log(`myText`, myText);
+    return myText;
   };
 
   clearSelected() {
@@ -251,7 +181,21 @@ export default class WordSelector extends Component {
 
           <View>
             <ScrollView>
-              <View style={styles.wordList}>{this.populateWords()}</View>
+              <View style={{padding: 10}}>
+                <SelectableText
+                  style={FONTS.DetectedText}
+                  menuItems={['орчуулах']}
+                  onSelection={({
+                    eventType,
+                    content,
+                    selectionStart,
+                    selectionEnd,
+                  }) => {
+                    this.translateFunction(content);
+                  }}
+                  value={this.populateWords()}
+                />
+              </View>
             </ScrollView>
           </View>
           <View style={styles.btnContainer}>
@@ -266,23 +210,6 @@ export default class WordSelector extends Component {
                 }}>
                 <Icon name="ios-camera" size={25} color={'white'} />
               </TouchableOpacity>
-            </View>
-            <View style={[styles.btnstyle, {marginHorizontal: wp(2)}]}>
-              <Button
-                title="арилгах"
-                color="white"
-                onPress={() => this.clearSelected()}
-              />
-            </View>
-            <View style={styles.btnstyle}>
-              <Button
-                title="орчуулах"
-                color="white"
-                onPress={async () => {
-                  await this._transleFunctionSentence(this.state.mySentence);
-                  this.setState({modalShown: true});
-                }}
-              />
             </View>
           </View>
         </SafeAreaView>
@@ -347,7 +274,7 @@ export default class WordSelector extends Component {
                       }}>
                        ОРЧУУЛГА {`\n\n`}
                     </Text>
-                    {this.state.translatedWord}
+                    {translatedWord}
                   </Text>
                 </ScrollView>
               )}
@@ -610,3 +537,64 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.brand,
   },
 });
+
+// const wordViews = [];
+// if (this.state.wordList && this.state.wordList.length > 0) {
+//   for (let idx = 0; idx < this.state.wordList.length; idx++) {
+//     wordViews.push(
+//       <SelectableText
+//         key={'Word_' + idx}
+//         onPress={async () => {
+//           this._transleFunction(idx);
+//         }}>
+//         <Text style={styles.word}>{this.state.wordList[idx]}</Text>
+//       </SelectableText>,
+//     );
+//   }
+// }
+// console.log(`wordViews`, wordViews);
+
+// return wordViews;
+
+//   <TouchableHighlight
+//   key={'Word_' + idx}
+//   underlayColor={'#80ED99'}
+//   onPress={async () => {
+//     // this._transleFunction(idx);
+//     if (this.state.startingIdx == null) {
+//       await this.setState({startingIdx: idx});
+//     } else if (this.state.endingIdx == null) {
+//       await this.setState({endingIdx: idx});
+//       this.createSentence();
+//     } else if (idx > this.state.endingIdx) {
+//       await this.setState({endingIdx: idx});
+//       this.createSentence();
+//     } else if (idx < this.state.startingIdx) {
+//       await this.setState({startingIdx: idx});
+//     } else if (
+//       idx < this.state.endingIdx &&
+//       idx > (this.state.endingIdx + this.state.startingIdx) / 2
+//     ) {
+//       await this.setState({endingIdx: idx});
+//       this.createSentence();
+//     } else if (
+//       idx > this.state.startingIdx &&
+//       idx < (this.state.endingIdx + this.state.startingIdx) / 2
+//     ) {
+//       await this.setState({startingIdx: idx});
+//       this.createSentence();
+//     }
+//   }}
+//   onLongPress={async () => {
+//     await this._transleFunction(idx);
+//     this.myToast();
+//   }}
+//   style={
+//     this.state.startingIdx != null &&
+//     this.state.startingIdx <= idx &&
+//     this.state.mySentence[idx - this.state.startingIdx]?.selected
+//       ? styles.selectedWord
+//       : styles.nonSelectedWord
+//   }>
+//   <Text style={styles.word}>{this.state.wordList[idx]}</Text>
+// </TouchableHighlight>,

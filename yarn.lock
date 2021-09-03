@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@alentoma/react-native-selectable-text@^1.5.3":
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/@alentoma/react-native-selectable-text/-/react-native-selectable-text-1.5.3.tgz#642754104e4a6052c45ddd24482680880dbcb51e"
+  integrity sha512-yzYShHgIT8pYwbAZ55TEezwjxev87xUVzsLdj8YHbUgcWleFfiDl/EZU7CXz3RyxhzS9kanwsgNb92CApbOhmA==
+  dependencies:
+    fast-memoize "^2.5.1"
+    uuid "^3.3.2"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13":
   version "7.12.13"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.12.13.tgz"
@@ -2886,6 +2894,11 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
+
+fast-memoize@^2.5.1:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/fast-memoize/-/fast-memoize-2.5.2.tgz#79e3bb6a4ec867ea40ba0e7146816f6cdce9b57e"
+  integrity sha512-Ue0LwpDYErFbmNnZSF0UH6eImUwDmogUO1jyE+JbN2gsQz/jICm1Ve7t9QT0rNSsfJt+Hs4/S3GnsDVjL4HVrw==
 
 fb-watchman@^2.0.0:
   version "2.0.1"
