@@ -2,11 +2,9 @@ import React, {Component} from 'react';
 
 import {
   StyleSheet,
-  TouchableHighlight,
   ScrollView,
   View,
   Text,
-  Button,
   TouchableOpacity,
   ActivityIndicator,
   Image,
@@ -19,7 +17,7 @@ import {hp, wp} from '../../constants/theme';
 import translate from 'translate-google-api';
 import Toast from 'react-native-toast-message';
 import commonStyles from '../../../commonStyles';
-import {COLORS, FONTS, Icons} from '../../constants';
+import {COLORS, FONTS} from '../../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Camera, {Constants} from '../../components/camera';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
@@ -537,64 +535,3 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.brand,
   },
 });
-
-// const wordViews = [];
-// if (this.state.wordList && this.state.wordList.length > 0) {
-//   for (let idx = 0; idx < this.state.wordList.length; idx++) {
-//     wordViews.push(
-//       <SelectableText
-//         key={'Word_' + idx}
-//         onPress={async () => {
-//           this._transleFunction(idx);
-//         }}>
-//         <Text style={styles.word}>{this.state.wordList[idx]}</Text>
-//       </SelectableText>,
-//     );
-//   }
-// }
-// console.log(`wordViews`, wordViews);
-
-// return wordViews;
-
-//   <TouchableHighlight
-//   key={'Word_' + idx}
-//   underlayColor={'#80ED99'}
-//   onPress={async () => {
-//     // this._transleFunction(idx);
-//     if (this.state.startingIdx == null) {
-//       await this.setState({startingIdx: idx});
-//     } else if (this.state.endingIdx == null) {
-//       await this.setState({endingIdx: idx});
-//       this.createSentence();
-//     } else if (idx > this.state.endingIdx) {
-//       await this.setState({endingIdx: idx});
-//       this.createSentence();
-//     } else if (idx < this.state.startingIdx) {
-//       await this.setState({startingIdx: idx});
-//     } else if (
-//       idx < this.state.endingIdx &&
-//       idx > (this.state.endingIdx + this.state.startingIdx) / 2
-//     ) {
-//       await this.setState({endingIdx: idx});
-//       this.createSentence();
-//     } else if (
-//       idx > this.state.startingIdx &&
-//       idx < (this.state.endingIdx + this.state.startingIdx) / 2
-//     ) {
-//       await this.setState({startingIdx: idx});
-//       this.createSentence();
-//     }
-//   }}
-//   onLongPress={async () => {
-//     await this._transleFunction(idx);
-//     this.myToast();
-//   }}
-//   style={
-//     this.state.startingIdx != null &&
-//     this.state.startingIdx <= idx &&
-//     this.state.mySentence[idx - this.state.startingIdx]?.selected
-//       ? styles.selectedWord
-//       : styles.nonSelectedWord
-//   }>
-//   <Text style={styles.word}>{this.state.wordList[idx]}</Text>
-// </TouchableHighlight>,
