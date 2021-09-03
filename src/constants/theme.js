@@ -25,25 +25,11 @@ export const hp = heightPercent => {
 };
 
 export const FONTS = {
-  text1: {fontFamily: 'SFProRounded-Regular', fontSize: ft(13)},
-  text2: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(22)},
-  text3: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(17)},
-  text4: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(12)},
-  text5: {fontFamily: 'SFProRounded-Regular', fontSize: ft(17)},
-  index: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(14)},
-  score: {fontFamily: 'SFProRounded-Black', fontSize: ft(18)},
-  buttonText1: {fontFamily: 'SFProRounded-Black', fontSize: ft(16)},
-  buttonText2: {fontFamily: 'SFProRounded-Black', fontSize: ft(10)},
-  buttonText3: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(9)},
-  buttonText4: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(16)},
-  modalButtonText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(15)},
-  dateAndBtnText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(15)},
-  modalText1: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(18)},
-  modalText2: {fontFamily: 'SFProRounded-Light', fontSize: ft(12)},
-  genderText: {fontFamily: 'SFProRounded-Light', fontSize: ft(13)},
-  playertext: {fontFamily: 'SFProRounded-Light', fontSize: ft(14)},
-  warningText: {fontFamily: 'SFProRounded-Light', fontSize: ft(10)},
-  TextInputTitle: {fontFamily: 'SFProRounded-Bold', fontSize: ft(13)},
+  chooselangText: {fontFamily: 'SFProRounded-Bold', fontSize: ft(11)},
+  chooseLangText2: {fontFamily: 'SFProRounded-Regular', fontSize: ft(9)},
+  modalHeaderText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(22)},
+  SelectLanguageText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(16)},
+  SelectedLanguageText: {fontFamily: 'SFProRounded-Semibold', fontSize: ft(10)},
 };
 
 export const COLORS = {
@@ -59,7 +45,5 @@ export const COLORS = {
   genderText: '#919191',
 };
 
-export const SIZES = {};
-
-const appTheme = {COLORS, SIZES, FONTS};
+const appTheme = {COLORS, FONTS};
 export default appTheme;

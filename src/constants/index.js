@@ -1,3 +1,4 @@
+import * as Icons from './icons';
 import theme, {COLORS, SIZES, FONTS} from './theme';
 
-export {theme, COLORS, SIZES, FONTS};
+export {Icons, theme, COLORS, SIZES, FONTS};

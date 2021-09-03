@@ -9,22 +9,35 @@ import {
   Button,
   TouchableOpacity,
   ActivityIndicator,
-  Dimensions,
   Image,
   SafeAreaView,
 } from 'react-native';
 
-import {COLORS, SIZES, FONTS} from '../../constants';
-import Icon from 'react-native-vector-icons/Ionicons';
 import Helper from '../../lib/helper';
-import Camera, {Constants} from '../../components/camera';
-import commonStyles from '../../../commonStyles';
-import translate from 'translate-google-api';
 import Modal from 'react-native-modal';
 import {hp, wp} from '../../constants/theme';
-import Toast, {BaseToast} from 'react-native-toast-message';
+import translate from 'translate-google-api';
+import commonStyles from '../../../commonStyles';
+import {COLORS, FONTS, Icons} from '../../constants';
+import Icon from 'react-native-vector-icons/Ionicons';
+import Camera, {Constants} from '../../components/camera';
+import Toast from 'react-native-toast-message';
 
 let whichLang = 'mn';
+let displayLang = 'MОНГОЛ ХЭЛ';
+
+const langImg = {
+  mn: require('../../../assets/mongolia.png'),
+  fr: require('../../../assets/france.png'),
+  ru: require('../../../assets/russia.png'),
+  it: require('../../../assets/italy.png'),
+  sw: require('../../../assets/sweden.png'),
+  de: require('../../../assets/germany.png'),
+  ko: require('../../../assets/south-korea.png'),
+  cz: require('../../../assets/czech-republic.png'),
+  en: require('../../../assets/united-states.png'),
+  tr: require('../../../assets/turkey.png'),
+};
 
 export default class WordSelector extends Component {
   state = {
@@ -39,6 +52,7 @@ export default class WordSelector extends Component {
     recogonizedText: null,
     selectedWord: null,
     modalShown: false,
+    langModal: false,
     translatedWord: null,
     startingIdx: null,
     endingIdx: null,
@@ -113,10 +127,10 @@ export default class WordSelector extends Component {
     newArr = newArr.join('-');
     newArr = await newArr.replace(/-/g, ' ');
     const result = await translate(newArr, {
-      tld: 'cn',
+      // tld: 'cn',
       to: whichLang,
     });
-
+    console.log(`result`, result);
     this.setState({
       translatedWord: result,
       translateLoad: false,
@@ -180,7 +194,7 @@ export default class WordSelector extends Component {
   createSentence = async () => {
     const mySentence = [];
     let myWords = this.state.wordList;
-    if (this.state.startingIdx && this.state.endingIdx != null) {
+    if (this.state.startingIdx || this.state.endingIdx != null) {
       let slicedWords = myWords.slice(
         this.state.startingIdx,
         this.state.endingIdx + 1,
@@ -203,106 +217,38 @@ export default class WordSelector extends Component {
     return (
       <>
         <SafeAreaView style={[styles.container, this.props.style]}>
-          <View style={{marginTop: hp(3)}}>
-            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'mn';
-                }}>
-                <Image
-                  source={require('../../../assets/mongolia.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'fr';
-                }}>
-                <Image
-                  source={require('../../../assets/france.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'ru';
-                }}>
-                <Image
-                  source={require('../../../assets/russia.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'it';
-                }}>
-                <Image
-                  source={require('../../../assets/italy.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'sv';
-                }}>
-                <Image
-                  source={require('../../../assets/sweden.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'de';
-                }}>
-                <Image
-                  source={require('../../../assets/germany.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'ko';
-                }}>
-                <Image
-                  source={require('../../../assets/south-korea.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'cs';
-                }}>
-                <Image
-                  source={require('../../../assets/czech-republic.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-
-              <View>
-                <TouchableOpacity
-                  onPress={() => {
-                    whichLang = 'en';
-                  }}>
+          <View
+            style={{
+              alignSelf: 'flex-end',
+              margin: hp(2),
+            }}>
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({langModal: true});
+              }}>
+              <View style={{flexDirection: 'row'}}>
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
                   <Image
-                    source={require('../../../assets/united-states.png')}
-                    style={styles.countryIcon}
+                    source={langImg[whichLang]}
+                    style={styles.flagIconSelected}
                   />
-                </TouchableOpacity>
+                </View>
+                <View>
+                  <Text style={FONTS.chooselangText}>{displayLang}</Text>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={FONTS.chooseLangText2}>ХЭЛ СОЛИХ </Text>
+                    <View>
+                      <Image
+                        style={{width: wp(3.3), height: wp(3.3)}}
+                        source={require('../../../assets/downArrow.png')}
+                      />
+                    </View>
+                  </View>
+                </View>
               </View>
-              <TouchableOpacity
-                onPress={() => {
-                  whichLang = 'tr';
-                }}>
-                <Image
-                  source={require('../../../assets/turkey.png')}
-                  style={styles.countryIcon}
-                />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
+
           <View>
             <ScrollView>
               <View style={styles.wordList}>{this.populateWords()}</View>
@@ -391,7 +337,8 @@ export default class WordSelector extends Component {
                 <ScrollView style={{marginTop: hp(6.5)}}>
                   <Text
                     style={
-                      (FONTS.text2, {alignSelf: 'center', textAlign: 'center'})
+                      (FONTS.modalHeaderText,
+                      {alignSelf: 'center', textAlign: 'center'})
                     }>
                     <Text
                       style={{
@@ -404,6 +351,158 @@ export default class WordSelector extends Component {
                   </Text>
                 </ScrollView>
               )}
+            </View>
+          </Modal>
+          <Modal
+            style={{
+              alignSelf: 'center',
+              justifyContent: 'flex-start',
+              bottom: 20,
+            }}
+            isVisible={this.state.langModal}
+            onBackdropPress={() => {
+              this.setState({langModal: false});
+            }}>
+            <View style={styles.langModalStyle}>
+              <SafeAreaView>
+                <View style={{alignSelf: 'center'}}>
+                  <Text style={FONTS.SelectLanguageText}>
+                    ОРЧУУЛАХ ХЭЛ СОНГОХ
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignSelf: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'mn';
+                      displayLang = 'MОНГОЛ ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'mn' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/mongolia.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'fr';
+                      displayLang = 'ФРАНЦ ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'fr' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/france.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'ru';
+                      displayLang = 'ОРОС ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'ru' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/russia.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'it';
+                      displayLang = 'ИТАЛИ ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'it' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/italy.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'sv';
+                      displayLang = 'ШВЕД ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'sv' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/sweden.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'de';
+                      displayLang = 'ГЕРMАН ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'de' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/germany.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'ko';
+                      displayLang = 'СОЛОНГОС ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'ko' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/south-korea.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'cs';
+                      displayLang = 'ЧЕХ ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'cs' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/czech-republic.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        whichLang = 'en';
+                        displayLang = 'АНГЛИ ХЭЛ';
+                        this.setState({langModal: false});
+                      }}
+                      style={whichLang == 'en' && styles.flagIcon}>
+                      <Image
+                        source={require('../../../assets/united-states.png')}
+                        style={styles.flagImg}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'tr';
+                      displayLang = 'ТУРК ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'tr' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/turkey.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </SafeAreaView>
             </View>
           </Modal>
         </View>
@@ -472,9 +571,38 @@ const styles = StyleSheet.create({
     width: wp(100),
     height: hp(45),
   },
-  countryIcon: {
-    width: 40,
-    height: 40,
+  langModalStyle: {
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    backgroundColor: 'white',
+    width: wp(100),
+    height: hp(28),
+  },
+
+  flagIcon: {
+    borderWidth: 1,
+    borderRadius: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: COLORS.brand,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
+  },
+  flagIconSelected: {
+    width: wp(9),
+    height: wp(9),
+    marginHorizontal: wp(1),
+  },
+  flagImg: {
+    width: wp(16),
+    height: wp(16),
     marginHorizontal: wp(1),
   },
   btnstyle: {
