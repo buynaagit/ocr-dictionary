@@ -86,16 +86,15 @@ export default class WordSelector extends Component {
   }
 
   checkPermission = async (type): Promise<boolean> => {
-    console.log(`AppPermission checkPermission  type:`, type);
     const permissions = REQUEST_PERMISSION_TYPE[type][Platform.OS];
-    console.log(`AppPermission checkPermission  permissions:`, permissions);
+
     if (!permissions) {
       return true;
     }
     try {
       const result = await check(permissions);
       this.setState({permissionStatus: result});
-      console.log(`AppPermission checkPermission  result:`, result);
+
       if (result === RESULTS.GRANTED) {
         this.setState({showCamera: true});
       } else {
@@ -103,19 +102,16 @@ export default class WordSelector extends Component {
       }
       return this.requestPermission(permissions);
     } catch (error) {
-      console.log(`AppPermission checkPermission  error:`, error);
       return false;
     }
   };
 
   requestPermission = async (permissions): Promise<boolean> => {
-    console.log(`AppPermission requestPermission  permissions:`, permissions);
     try {
       const result = await request(permissions);
-      console.log(`AppPermission requestPermission  result:`, result);
+
       return result === RESULTS.GRANTED;
     } catch (error) {
-      console.log(`AppPermission requestPermission  error:`, error);
       return false;
     }
   };
@@ -133,10 +129,6 @@ export default class WordSelector extends Component {
       ],
       {
         cancelable: true,
-        onDismiss: () =>
-          Alert.alert(
-            'This alert was dismissed by tapping outside of the alert dialog.',
-          ),
       },
     );
 
