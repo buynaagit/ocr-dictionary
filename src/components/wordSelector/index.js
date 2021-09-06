@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   Image,
   SafeAreaView,
+  Platform,
+  Alert,
 } from 'react-native';
 
 import Helper from '../../lib/helper';
@@ -18,6 +20,13 @@ import translate from 'translate-google-api';
 import Toast from 'react-native-toast-message';
 import commonStyles from '../../../commonStyles';
 import {COLORS, FONTS} from '../../constants';
+import {
+  check,
+  PERMISSIONS,
+  RESULTS,
+  request,
+  openSettings,
+} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Camera, {Constants} from '../../components/camera';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
@@ -39,6 +48,19 @@ const langImg = {
   tr: require('../../../assets/turkey.png'),
 };
 
+const PLATFORM_CAMERA_PERMISSIONS = {
+  ios: PERMISSIONS.IOS.CAMERA,
+  android: PERMISSIONS.ANDROID.CAMERA,
+};
+
+const REQUEST_PERMISSION_TYPE = {
+  camera: PLATFORM_CAMERA_PERMISSIONS,
+};
+
+const PERMISSION_TYPE = {
+  camera: 'camera',
+};
+
 export default class WordSelector extends Component {
   state = {
     selectedWordIdx: -1,
@@ -56,11 +78,67 @@ export default class WordSelector extends Component {
     startingIdx: null,
     endingIdx: null,
     mySentence: [],
+    permissionStatus: null,
   };
 
   componentDidMount() {
     // Break down all the words detected by the camera
   }
+
+  checkPermission = async (type): Promise<boolean> => {
+    console.log(`AppPermission checkPermission  type:`, type);
+    const permissions = REQUEST_PERMISSION_TYPE[type][Platform.OS];
+    console.log(`AppPermission checkPermission  permissions:`, permissions);
+    if (!permissions) {
+      return true;
+    }
+    try {
+      const result = await check(permissions);
+      this.setState({permissionStatus: result});
+      console.log(`AppPermission checkPermission  result:`, result);
+      if (result === RESULTS.GRANTED) {
+        this.setState({showCamera: true});
+      } else {
+        this.showAlert();
+      }
+      return this.requestPermission(permissions);
+    } catch (error) {
+      console.log(`AppPermission checkPermission  error:`, error);
+      return false;
+    }
+  };
+
+  requestPermission = async (permissions): Promise<boolean> => {
+    console.log(`AppPermission requestPermission  permissions:`, permissions);
+    try {
+      const result = await request(permissions);
+      console.log(`AppPermission requestPermission  result:`, result);
+      return result === RESULTS.GRANTED;
+    } catch (error) {
+      console.log(`AppPermission requestPermission  error:`, error);
+      return false;
+    }
+  };
+
+  showAlert = () =>
+    Alert.alert(
+      'Камерын зөвшөөрөл өгөх',
+      '',
+      [
+        {
+          text: 'ОК',
+          onPress: () => openSettings(),
+          // style: 'cancel',
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () =>
+          Alert.alert(
+            'This alert was dismissed by tapping outside of the alert dialog.',
+          ),
+      },
+    );
 
   onOCRCapture(recogonizedText) {
     let wordList = [];
@@ -96,7 +174,7 @@ export default class WordSelector extends Component {
 
   myToast = () => {
     Toast.show({
-      type: 'success',
+      // type: 'success',
       // autoHide: false,
       // text1: 'орчуулга',
       text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
@@ -136,10 +214,6 @@ export default class WordSelector extends Component {
     console.log(`myText`, myText);
     return myText;
   };
-
-  clearSelected() {
-    this.setState({startingIdx: null, mySentence: [], endingIdx: null});
-  }
 
   render() {
     return (
@@ -192,6 +266,7 @@ export default class WordSelector extends Component {
                     this.translateFunction(content);
                   }}
                   value={this.populateWords()}
+                  // value="I love you baby, but you do not love me anymore"
                 />
               </View>
             </ScrollView>
@@ -203,8 +278,8 @@ export default class WordSelector extends Component {
                 {justifyContent: 'center', paddingHorizontal: wp(2)},
               ]}>
               <TouchableOpacity
-                onPress={() => {
-                  this.setState({showCamera: true});
+                onPress={async () => {
+                  await this.checkPermission(PERMISSION_TYPE.camera);
                 }}>
                 <Icon name="ios-camera" size={25} color={'white'} />
               </TouchableOpacity>

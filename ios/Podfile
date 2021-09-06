@@ -35,6 +35,8 @@ def add_flipper_pods!(versions = {})
 end
 
 target 'hippodic' do
+  
+
   config = use_native_modules!
 
   use_react_native!(
@@ -46,6 +48,9 @@ target 'hippodic' do
   pod 'react-native-camera', path: '../node_modules/react-native-camera', subspecs: [
     'TextDetector',
   ]
+
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
   pod 'GoogleMLKit/TextRecognition'
   pod 'Firebase/Analytics'
 
