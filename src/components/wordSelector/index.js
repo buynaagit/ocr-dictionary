@@ -78,36 +78,28 @@ export default class WordSelector extends Component {
     startingIdx: null,
     endingIdx: null,
     mySentence: [],
+    permStatus: null,
   };
 
   componentDidMount() {
+    // this.setState({showCamera: true});
     // Break down all the words detected by the camera
   }
 
   checkPermission = async (type): Promise<boolean> => {
     const permissions = REQUEST_PERMISSION_TYPE[type][Platform.OS];
-
     if (!permissions) {
       return true;
     }
     try {
       const result = await check(permissions);
-      if (result === RESULTS.GRANTED) {
-        this.setState({showCamera: true});
+      if (result === 'denied') {
+        await this.setState({showCamera: true});
+      } else if (result === 'blocked') {
+        openSettings();
       } else {
-        this.showAlert();
+        this.setState({showCamera: true});
       }
-      return this.requestPermission(permissions);
-    } catch (error) {
-      return false;
-    }
-  };
-
-  requestPermission = async (permissions): Promise<boolean> => {
-    try {
-      const result = await request(permissions);
-
-      return result === RESULTS.GRANTED;
     } catch (error) {
       return false;
     }
@@ -130,7 +122,6 @@ export default class WordSelector extends Component {
       recogonizedText.textBlocks &&
       recogonizedText.textBlocks.length > 0
     ) {
-      console.log(`recogonizedText.textBlocks`, recogonizedText.textBlocks);
       for (let idx = 0; idx < recogonizedText.textBlocks.length; idx++) {
         let text = recogonizedText.textBlocks[idx].value;
         if (text && text.trim().length > 0) {
@@ -144,7 +135,6 @@ export default class WordSelector extends Component {
       }
 
       this.setState({wordList: wordList});
-      console.log(`wordList`, wordList);
     }
 
     this.setState({
@@ -193,7 +183,6 @@ export default class WordSelector extends Component {
       myText = myText.join('-');
       myText = myText.replace(/-/g, ' ');
     }
-    console.log(`myText`, myText);
     return myText;
   };
 
@@ -260,7 +249,7 @@ export default class WordSelector extends Component {
               ]}>
               <TouchableOpacity
                 onPress={async () => {
-                  await this.checkPermission(PERMISSION_TYPE.camera);
+                  this.checkPermission(PERMISSION_TYPE.camera);
                 }}>
                 <Icon name="ios-camera" size={25} color={'white'} />
               </TouchableOpacity>
