@@ -78,7 +78,6 @@ export default class WordSelector extends Component {
     startingIdx: null,
     endingIdx: null,
     mySentence: [],
-    permissionStatus: null,
   };
 
   componentDidMount() {
@@ -93,8 +92,6 @@ export default class WordSelector extends Component {
     }
     try {
       const result = await check(permissions);
-      this.setState({permissionStatus: result});
-
       if (result === RESULTS.GRANTED) {
         this.setState({showCamera: true});
       } else {
@@ -117,20 +114,13 @@ export default class WordSelector extends Component {
   };
 
   showAlert = () =>
-    Alert.alert(
-      'Камерын зөвшөөрөл өгөх',
-      '',
-      [
-        {
-          text: 'ОК',
-          onPress: () => openSettings(),
-          // style: 'cancel',
-        },
-      ],
+    Alert.alert('Камерын зөвшөөрөл өгөх', '', [
       {
-        cancelable: true,
+        text: 'ОК',
+        onPress: () => openSettings(),
+        // style: 'cancel',
       },
-    );
+    ]);
 
   onOCRCapture(recogonizedText) {
     let wordList = [];
@@ -258,7 +248,6 @@ export default class WordSelector extends Component {
                     this.translateFunction(content);
                   }}
                   value={this.populateWords()}
-                  // value="I love you baby, but you do not love me anymore"
                 />
               </View>
             </ScrollView>
@@ -512,6 +501,7 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
     paddingHorizontal: 10,
+    backgroundColor: 'white',
   },
   header: {
     padding: 4,
