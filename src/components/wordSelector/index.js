@@ -86,6 +86,7 @@ export default class WordSelector extends Component {
     // Break down all the words detected by the camera
   }
 
+  //Checking permission when clicking on camera button. If blocked jump to Phone settings
   checkPermission = async (type): Promise<boolean> => {
     const permissions = REQUEST_PERMISSION_TYPE[type][Platform.OS];
     if (!permissions) {
@@ -114,6 +115,7 @@ export default class WordSelector extends Component {
       },
     ]);
 
+  //Text recognition by camera ( Detect хийсэн текстийг нэг нэгээр нь array-д хийж wordList хувьсагчид хадгална )
   onOCRCapture(recogonizedText) {
     let wordList = [];
 
@@ -146,13 +148,11 @@ export default class WordSelector extends Component {
 
   myToast = () => {
     Toast.show({
-      // type: 'success',
-      // autoHide: false,
-      // text1: 'орчуулга',
       text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
     });
   };
 
+  //Үг олон байвал modal нэг байвал toast аар орчуулна.
   async translateFunction(words) {
     if (words.indexOf(' ') >= 0) {
       const result = await translate(words, {
@@ -169,13 +169,12 @@ export default class WordSelector extends Component {
       translatedWord = result;
       Toast.show({
         type: 'success',
-        // autoHide: false,
-        // text1: 'орчуулга',
         text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
       });
     }
   }
 
+  //Changing the recognized text array into string with a space.
   populateWords = () => {
     let myText = [];
     if (this.state.wordList && this.state.wordList.length > 0) {
