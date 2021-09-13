@@ -13,8 +13,8 @@ English to France, Russia, Italy, Sweden, Germany, South Korean, Czech, Turkey.
 ![IMG_3299](https://user-images.githubusercontent.com/68780094/133015143-ef4a6ade-78c2-4add-bca1-901cfdac627a.PNG)
 
 Ашигласан сангууд: 
-@alentoma/react-native-selectable-text
-react-native-camera
-translate-google-api
+@alentoma/react-native-selectable-text,
+react-native-camera,
+translate-google-api,
 
 Нэмэлт тайлбарыг код доторхи функцуудын дээр комментоор бичсэн.
