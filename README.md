@@ -2,9 +2,11 @@
 
 Hippodictionary text detection feature.
 
-Уг feature нь хэрэглэгч англи үгсийн текстийн зургыг утасаараа аван утсан дээрээ текст хэлбэрээр оруулж, оруулсан текстээ үг болон өгүүлбэрээр орчуулж болно.
+Уг feature нь хэрэглэгч англи үгсийн текстийн зургыг утсаараа аван утaс дээрээ текст хэлбэрээр оруулж, оруулсан текстээ үг болон өгүүлбэрээр орчуулж болно.
 
 English to France, Russia, Italy, Sweden, Germany, South Korean, Czech, Turkey.
+
+Зураг авсан текстыг detect хийн text хэлбэрээр харуулан selectable-text сангаар удаан дарах үед нэг үгээр болон өгүүлбэрээр хялбар аргаар сонгож. Нэг үг сонгогдох үед toast бусад үед модал хэлбэрээр google-translate-api ашиглаж орчуулга гарч ирнэ.
 
 ![IMG_3295](https://user-images.githubusercontent.com/68780094/133015107-c5e983ad-70b8-400b-8e73-2ba7321d1b28.PNG)
 ![IMG_3296](https://user-images.githubusercontent.com/68780094/133015122-ddf5318c-42e6-4669-8b5a-812c68eaed7e.PNG)
