@@ -1,6 +1,6 @@
-# hippodictionary-text-detection
+# OCR-Dictionary
 
-Hippodictionary text detection feature.
+Text detection feature.
 
 Уг feature нь хэрэглэгч англи үгсийн текстийн зургыг утсаараа аван утaс дээрээ текст хэлбэрээр оруулж, оруулсан текстээ үг болон өгүүлбэрээр орчуулж болно.
 
