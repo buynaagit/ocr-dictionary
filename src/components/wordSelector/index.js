@@ -1,25 +1,26 @@
 import React, {Component} from 'react';
 
 import {
-  StyleSheet,
-  ScrollView,
+  Alert,
   View,
   Text,
+  Image,
+  Platform,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
-  SafeAreaView,
-  Platform,
-  Alert,
 } from 'react-native';
 
 import Helper from '../../lib/helper';
 import Modal from 'react-native-modal';
-import {ft, hp, wp} from '../../constants/theme';
 import translate from 'translate-google-api';
+import {COLORS, FONTS} from '../../constants';
 import Toast from 'react-native-toast-message';
 import commonStyles from '../../../commonStyles';
-import {COLORS, FONTS} from '../../constants';
+import {ft, hp, wp} from '../../constants/theme';
+
 import {
   check,
   PERMISSIONS,
@@ -27,27 +28,32 @@ import {
   request,
   openSettings,
 } from 'react-native-permissions';
+
 import Icon from 'react-native-vector-icons/Ionicons';
-import ArrowDown from 'react-native-vector-icons/SimpleLineIcons';
 import Camera, {Constants} from '../../components/camera';
+import ArrowDown from 'react-native-vector-icons/SimpleLineIcons';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
+// const googleDictionaryApi = require('google-dictionary-api');
+
 let whichLang = 'mn';
-let displayLang = 'MОНГОЛ ХЭЛ';
 let translatedWord = null;
+let displayLang = 'MОНГОЛ ХЭЛ';
 
 const langImg = {
-  mn: require('../../../assets/mongolia.png'),
+  it: require('../../../assets/italy.png'),
   fr: require('../../../assets/france.png'),
   ru: require('../../../assets/russia.png'),
-  it: require('../../../assets/italy.png'),
   sw: require('../../../assets/sweden.png'),
-  de: require('../../../assets/germany.png'),
-  ko: require('../../../assets/south-korea.png'),
-  cz: require('../../../assets/czech-republic.png'),
-  en: require('../../../assets/united-states.png'),
   tr: require('../../../assets/turkey.png'),
+  de: require('../../../assets/germany.png'),
+  mn: require('../../../assets/mongolia.png'),
+  ko: require('../../../assets/south-korea.png'),
+  en: require('../../../assets/united-states.png'),
+  cz: require('../../../assets/czech-republic.png'),
 };
+
+const axios = require('axios');
 
 const PLATFORM_CAMERA_PERMISSIONS = {
   ios: PERMISSIONS.IOS.CAMERA,
@@ -119,7 +125,6 @@ export default class WordSelector extends Component {
   //Text recognition by camera ( Detect хийсэн текстийг нэг нэгээр нь array-д хийж wordList хувьсагчид хадгална )
   onOCRCapture(recogonizedText) {
     let wordList = [];
-
     if (
       recogonizedText &&
       recogonizedText.textBlocks &&
@@ -136,10 +141,8 @@ export default class WordSelector extends Component {
           }
         }
       }
-
       this.setState({wordList: wordList});
     }
-
     this.setState({
       showCamera: false,
       showWordList: Helper.isNotNullAndUndefined(recogonizedText),
@@ -183,6 +186,19 @@ export default class WordSelector extends Component {
         type: 'myToast',
       });
     }
+    // axios
+    //   .get('https://api.dictionaryapi.dev/api/v2/entries/en/hello')
+    //   .then(function (response) {
+    //     // handle success
+    //     console.log(response);
+    //   })
+    //   .catch(function (error) {
+    //     // handle error
+    //     console.log(error);
+    //   })
+    //   .then(function () {
+    //     // always executed
+    //   });
   }
 
   //Changing the recognized text array into string with a space.
@@ -281,7 +297,8 @@ export default class WordSelector extends Component {
               ]}>
               <TouchableOpacity
                 onPress={async () => {
-                  this.checkPermission(PERMISSION_TYPE.camera);
+                  // this.checkPermission(PERMISSION_TYPE.camera);
+                  this.English2English();
                 }}>
                 <Icon name="ios-camera" size={wp(10)} color={'white'} />
               </TouchableOpacity>
