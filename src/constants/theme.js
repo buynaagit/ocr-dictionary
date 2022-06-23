@@ -30,14 +30,16 @@ export const FONTS = {
   modalHeaderText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(22)},
   SelectLanguageText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(16)},
   SelectedLanguageText: {fontFamily: 'SFProRounded-Semibold', fontSize: ft(10)},
+  TranslatedWord: {fontFamily: 'SFProRounded-Bold', fontSize: ft(11)},
   DetectedText: {
     fontFamily: 'SFProRounded-Regular',
-    fontSize: ft(14),
+    fontSize: ft(16),
   },
 };
 
 export const COLORS = {
   brand: '#FF3366',
+  lightBlue: '#8ecae6',
   white: '#FFFFFF',
   green: '#AFD224',
   text: '#333333',

@@ -15,7 +15,7 @@ import {
 
 import Helper from '../../lib/helper';
 import Modal from 'react-native-modal';
-import {hp, wp} from '../../constants/theme';
+import {ft, hp, wp} from '../../constants/theme';
 import translate from 'translate-google-api';
 import Toast from 'react-native-toast-message';
 import commonStyles from '../../../commonStyles';
@@ -28,6 +28,7 @@ import {
   openSettings,
 } from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/Ionicons';
+import ArrowDown from 'react-native-vector-icons/SimpleLineIcons';
 import Camera, {Constants} from '../../components/camera';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
@@ -146,10 +147,21 @@ export default class WordSelector extends Component {
     });
   }
 
-  myToast = () => {
-    Toast.show({
-      text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
-    });
+  customToast = {
+    myToast: ({props}) => (
+      <View style={[styles.myToast, props.style]}>
+        <Text
+          style={[
+            FONTS.TranslatedWord,
+            {
+              color: 'white',
+              fontSize: ft(25),
+            },
+          ]}>
+          {translatedWord != null ? translatedWord : 'oрчуулж байна.'}
+        </Text>
+      </View>
+    ),
   };
 
   //Үг олон байвал modal нэг байвал toast аар орчуулна.
@@ -168,8 +180,7 @@ export default class WordSelector extends Component {
       });
       translatedWord = result;
       Toast.show({
-        type: 'success',
-        text1: translatedWord != null ? translatedWord : 'oрчуулж байна.',
+        type: 'myToast',
       });
     }
   }
@@ -191,8 +202,7 @@ export default class WordSelector extends Component {
         <SafeAreaView style={[styles.container, this.props.style]}>
           <View
             style={{
-              alignSelf: 'flex-end',
-              margin: hp(2),
+              alignSelf: 'center',
             }}>
             <TouchableOpacity
               onPress={() => {
@@ -221,9 +231,29 @@ export default class WordSelector extends Component {
             </TouchableOpacity>
           </View>
 
+          {/* <View
+            style={{
+              flexDirection: 'row',
+              alignSelf: 'center',
+              alignItems: 'center',
+            }}>
+            <Image
+              source={langImg[whichLang]}
+              style={styles.flagIconSelected}
+            />
+            <Image
+              style={{width: wp(3.3), height: wp(3.3)}}
+              source={require('../../../assets/downArrow.png')}
+            />
+          </View> */}
+
           <View>
             <ScrollView>
-              <View style={{padding: 10}}>
+              <View
+                style={{
+                  padding: 10,
+                  marginBottom: hp(10),
+                }}>
                 <SelectableText
                   style={FONTS.DetectedText}
                   menuItems={['орчуулах']}
@@ -235,7 +265,10 @@ export default class WordSelector extends Component {
                   }) => {
                     this.translateFunction(content);
                   }}
-                  value={this.populateWords()}
+                  // value={this.populateWords()}
+                  value={
+                    'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.'
+                  }
                 />
               </View>
             </ScrollView>
@@ -250,7 +283,7 @@ export default class WordSelector extends Component {
                 onPress={async () => {
                   this.checkPermission(PERMISSION_TYPE.camera);
                 }}>
-                <Icon name="ios-camera" size={25} color={'white'} />
+                <Icon name="ios-camera" size={wp(10)} color={'white'} />
               </TouchableOpacity>
             </View>
           </View>
@@ -475,7 +508,8 @@ export default class WordSelector extends Component {
             </View>
           </Modal>
         </View>
-        <Toast ref={ref => Toast.setRef(ref)} />
+
+        <Toast ref={ref => Toast.setRef(ref)} config={this.customToast} />
       </>
     );
   }
@@ -528,7 +562,6 @@ const styles = StyleSheet.create({
   btnContainer: {
     position: 'absolute',
     bottom: 10,
-
     flexDirection: 'row',
     alignSelf: 'center',
     zIndex: 1,
@@ -577,6 +610,15 @@ const styles = StyleSheet.create({
   },
   btnstyle: {
     borderRadius: 8,
-    backgroundColor: COLORS.brand,
+    backgroundColor: '#023047',
+  },
+  myToast: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60,
+    padding: 10,
+    backgroundColor: COLORS.lightBlue,
+    borderRadius: 15,
+    marginTop: hp(5),
   },
 });
