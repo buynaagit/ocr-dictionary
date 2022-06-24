@@ -38,7 +38,8 @@ export const FONTS = {
 };
 
 export const COLORS = {
-  brandGray: '#023047',
+  brandGray: '#98c1d9',
+  brandGray2: '#293241',
   brand: '#FF3366',
   lightBlue: '#8ecae6',
   white: '#FFFFFF',
@@ -49,6 +50,7 @@ export const COLORS = {
   grey: '#E3E1E1',
   warningText: '#C3902E',
   warningContainer: '#F4B43A',
+  antonym: '#ef476f',
   genderText: '#919191',
 };
 

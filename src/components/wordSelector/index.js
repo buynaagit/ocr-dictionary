@@ -31,13 +31,15 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import Camera, {Constants} from '../../components/camera';
-import ArrowDown from 'react-native-vector-icons/SimpleLineIcons';
+import Sound from 'react-native-vector-icons/AntDesign';
+import Copy from 'react-native-vector-icons/AntDesign';
+import Save from 'react-native-vector-icons/AntDesign';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
-let whichLang = 'mn';
+let whichLang = 'en';
 let oxfordDef = null;
 let translatedWord = null;
-let displayLang = 'MОНГОЛ ХЭЛ';
+let displayLang = 'Англи хэл';
 
 const langImg = {
   it: require('../../../assets/italy.png'),
@@ -179,6 +181,7 @@ export default class WordSelector extends Component {
         to: whichLang,
       });
       translatedWord = result;
+      console.log('translatedWord', translatedWord);
       this.setState({
         modalShown: true,
         translateLoad: false,
@@ -187,7 +190,6 @@ export default class WordSelector extends Component {
       if (whichLang == 'en') {
         this.oxfordTranslation(words);
       } else {
-        console.log('whichland, word :>> ', whichLang, words);
         const result = await translate(words, {
           to: whichLang,
         });
@@ -199,16 +201,19 @@ export default class WordSelector extends Component {
     }
   }
 
-  oxfordTranslation = async words => {
-    this.setState({
-      modalShown: true,
-    });
+  oxfordTranslation = async word => {
     axios
-      .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${words}`)
-      .then(function (response) {
+      .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
+      .then(response => {
         // handle success
         oxfordDef = response.data[0];
+        console.log('oxfordDef :>> ', oxfordDef.meanings[0]);
+        console.log('oxfordDef :>> ', oxfordDef.meanings);
         console.log('oxfordDef :>> ', oxfordDef);
+        this.setState({
+          modalShown: true,
+          translateLoad: false,
+        });
       })
       .catch(function (error) {
         // handle error
@@ -219,6 +224,7 @@ export default class WordSelector extends Component {
         });
       });
   };
+
   //Changing the recognized text array into string with a space.
   populateWords = () => {
     let myText = [];
@@ -242,44 +248,12 @@ export default class WordSelector extends Component {
               onPress={() => {
                 this.setState({langModal: true});
               }}>
-              <View style={{flexDirection: 'row'}}>
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <Image
-                    source={langImg[whichLang]}
-                    style={styles.flagIconSelected}
-                  />
-                </View>
-                <View>
-                  <Text style={FONTS.chooselangText}>{displayLang}</Text>
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={FONTS.chooseLangText2}>ХЭЛ СОЛИХ </Text>
-                    <View>
-                      <Image
-                        style={{width: wp(3.3), height: wp(3.3)}}
-                        source={require('../../../assets/downArrow.png')}
-                      />
-                    </View>
-                  </View>
-                </View>
-              </View>
+              <Image
+                style={{width: wp(3.3), height: wp(3.3)}}
+                source={require('../../../assets/downArrow.png')}
+              />
             </TouchableOpacity>
           </View>
-
-          {/* <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'center',
-              alignItems: 'center',
-            }}>
-            <Image
-              source={langImg[whichLang]}
-              style={styles.flagIconSelected}
-            />
-            <Image
-              style={{width: wp(3.3), height: wp(3.3)}}
-              source={require('../../../assets/downArrow.png')}
-            />
-          </View> */}
 
           <View>
             <ScrollView>
@@ -315,8 +289,8 @@ export default class WordSelector extends Component {
               ]}>
               <TouchableOpacity
                 onPress={async () => {
-                  // this.checkPermission(PERMISSION_TYPE.camera);
-                  this.English2English();
+                  this.checkPermission(PERMISSION_TYPE.camera);
+                  // this.English2English();
                 }}>
                 <Icon name="ios-camera" size={wp(10)} color={'white'} />
               </TouchableOpacity>
@@ -364,8 +338,8 @@ export default class WordSelector extends Component {
               this.setState({modalShown: false});
             }}>
             <>
-              {oxfordDef ? (
-                <View style={styles.modalStyle}>
+              {oxfordDef !== null ? (
+                <View style={styles.modalStyleOxford}>
                   {this.translateLoad ? (
                     <ActivityIndicator
                       style={{justifyContent: 'center', alignItems: 'center'}}
@@ -373,23 +347,181 @@ export default class WordSelector extends Component {
                       color={'#219bd9'}
                     />
                   ) : (
-                    <ScrollView style={{marginTop: hp(6.5)}}>
-                      <Text
-                        style={
-                          (FONTS.modalHeaderText,
-                          {alignSelf: 'center', textAlign: 'center'})
-                        }>
-                        <Text
-                          style={{
-                            color: COLORS.brandGray,
-                            fontFamily: 'SFProRounded-Bold',
-                            fontSize: ft(14),
-                          }}>
-                           ОРЧУУЛГА {`\n\n`}
-                        </Text>
-                        {oxfordDef.word}
-                      </Text>
-                    </ScrollView>
+                    <View>
+                      <View style={{zIndex: 5}}>
+                        <View style={styles.wordInfoContainer}>
+                          <View style={{alignSelf: 'center'}}>
+                            <Text
+                              style={[FONTS.modalHeaderText, {color: 'white'}]}>
+                              {oxfordDef.word} {` `}
+                              <Text
+                                style={{
+                                  fontFamily: 'SFProRounded-Regular',
+                                  fontSize: ft(18),
+                                }}>
+                                {oxfordDef.meanings[0].partOfSpeech}
+                              </Text>
+                            </Text>
+                            <Text
+                              style={{
+                                fontFamily: 'SFProRounded-Regular',
+                                fontSize: ft(18),
+                                fontStyle: 'italic',
+                                color: 'white',
+                              }}>
+                              {oxfordDef.phonetic}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                            }}>
+                            <TouchableOpacity style={styles.buttons}>
+                              <Sound
+                                name="sound"
+                                size={wp(8)}
+                                color={'white'}
+                              />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.buttons}>
+                              <Save name="staro" size={wp(8)} color={'white'} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.buttons}>
+                              <Save name="copy1" size={wp(8)} color={'white'} />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                        <ScrollView style={styles.definitionContainer}>
+                          {oxfordDef.meanings[0].synonyms.length > 0 && (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                marginBottom: hp(2),
+                              }}>
+                              <Text
+                                style={[
+                                  FONTS.SelectedLanguageText,
+                                  {
+                                    textAlign: 'left',
+                                    paddingRight: 10,
+                                    fontSize: ft(12),
+                                    color: COLORS.warningText,
+                                  },
+                                ]}>
+                                synonyms
+                              </Text>
+                              {oxfordDef.meanings[0].synonyms
+                                .slice(0, 3)
+                                .map((e, index) => (
+                                  <View
+                                    style={{
+                                      flexDirection: 'row',
+                                    }}>
+                                    <View
+                                      style={{
+                                        justifyContent: 'center',
+                                        paddingRight: 8,
+                                      }}>
+                                      <Text
+                                        style={{
+                                          fontFamily: 'SFProRounded-Regular',
+                                          color: COLORS.genderText,
+                                        }}>
+                                        {e}
+                                      </Text>
+                                    </View>
+                                  </View>
+                                ))}
+                            </View>
+                          )}
+                          {oxfordDef.meanings[0].antonyms.length > 0 && (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                marginBottom: hp(2),
+                              }}>
+                              <Text
+                                style={[
+                                  FONTS.SelectedLanguageText,
+                                  {
+                                    textAlign: 'left',
+                                    paddingRight: 10,
+                                    fontSize: ft(12),
+                                    color: COLORS.antonym,
+                                  },
+                                ]}>
+                                antonyms
+                              </Text>
+                              {oxfordDef.meanings[0].antonyms
+                                .slice(0, 3)
+                                .map((e, index) => (
+                                  <View
+                                    style={{
+                                      flexDirection: 'row',
+                                    }}>
+                                    <View
+                                      style={{
+                                        justifyContent: 'center',
+                                        paddingRight: 8,
+                                      }}>
+                                      <Text
+                                        style={{
+                                          fontFamily: 'SFProRounded-Regular',
+                                          color: COLORS.genderText,
+                                        }}>
+                                        {e}
+                                      </Text>
+                                    </View>
+                                  </View>
+                                ))}
+                            </View>
+                          )}
+                          <View>
+                            <Text
+                              style={[
+                                FONTS.DetectedText,
+                                {textAlign: 'center'},
+                              ]}>
+                              Definition
+                            </Text>
+                            {oxfordDef.meanings[0].definitions
+                              .slice(0, 5)
+                              .map((e, index) => (
+                                <View
+                                  style={{
+                                    marginTop: 10,
+                                  }}>
+                                  <View style={{flexDirection: 'row'}}>
+                                    <View
+                                      style={{
+                                        justifyContent: 'center',
+                                        paddingRight: 10,
+                                      }}>
+                                      <Text
+                                        style={{
+                                          fontFamily: 'SFProRounded-Semibold',
+                                          color: COLORS.brandGray,
+                                        }}>
+                                        {index + 1}
+                                      </Text>
+                                    </View>
+                                    <Text
+                                      style={{
+                                        fontFamily: 'SFProRounded-Regular',
+                                        fontSize: ft(13),
+                                      }}>
+                                      {e.definition}
+                                    </Text>
+                                  </View>
+                                </View>
+                              ))}
+                          </View>
+                        </ScrollView>
+                      </View>
+                      <View style={styles.layerWhite} />
+                      <View style={styles.backLayerGray} />
+                    </View>
                   )}
                 </View>
               ) : (
@@ -402,7 +534,7 @@ export default class WordSelector extends Component {
                         color={'#219bd9'}
                       />
                     ) : (
-                      <ScrollView style={{marginTop: hp(6.5)}}>
+                      <ScrollView style={{paddingTop: hp(2.5)}}>
                         <Text
                           style={
                             (FONTS.modalHeaderText,
@@ -605,6 +737,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
+  buttons: {
+    width: wp(16),
+    height: wp(16),
+    backgroundColor: COLORS.brandGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
   wordList: {
     paddingBottom: hp(20),
     flex: 1,
@@ -618,10 +758,42 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.brand,
     padding: 4,
   },
+  backLayerGray: {
+    backgroundColor: '#293241',
+    width: wp(30),
+    height: wp(30),
+    position: 'absolute',
+    top: hp(20),
+    right: 0,
+  },
   nonSelectedWord: {
     flex: 0,
     borderWidth: 0,
     padding: 4,
+  },
+  modalStyleOxford: {
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    backgroundColor: 'red',
+    width: wp(100),
+    height: hp(90),
+  },
+  wordInfoContainer: {
+    backgroundColor: COLORS.brandGray2,
+    borderBottomLeftRadius: 40,
+    borderTopRightRadius: 40,
+    borderTopLeftRadius: 40,
+    width: wp(100),
+    height: hp(30),
+    justifyContent: 'space-evenly',
+  },
+  definitionContainer: {
+    height: hp(70),
+    width: wp(100),
+    backgroundColor: 'white',
+    borderTopRightRadius: 40,
+    paddingHorizontal: wp(7),
+    paddingTop: wp(10),
   },
   word: {
     ...FONTS.text5,
@@ -644,12 +816,22 @@ const styles = StyleSheet.create({
     width: wp(100),
     height: hp(50),
   },
+
   langModalStyle: {
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     backgroundColor: 'white',
     width: wp(100),
     height: hp(28),
+  },
+  layerWhite: {
+    backgroundColor: 'white',
+    width: wp(30),
+    height: wp(30),
+    position: 'absolute',
+    zIndex: 0,
+    top: hp(20),
+    left: 0,
   },
 
   flagIcon: {
