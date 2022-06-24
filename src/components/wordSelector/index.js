@@ -538,17 +538,27 @@ export default class WordSelector extends Component {
                         <Text
                           style={
                             (FONTS.modalHeaderText,
-                            {alignSelf: 'center', textAlign: 'center'})
+                            {
+                              alignSelf: 'center',
+                              paddingBottom: hp(10),
+                            })
                           }>
                           <Text
                             style={{
                               color: COLORS.brandGray,
                               fontFamily: 'SFProRounded-Bold',
                               fontSize: ft(14),
+                              textAlign: 'center',
                             }}>
                              ОРЧУУЛГА {`\n\n`}
                           </Text>
-                          {translatedWord}
+                          <Text
+                            style={{
+                              fontFamily: 'SFProRounded-Regular',
+                              fontSize: ft(12),
+                            }}>
+                            {translatedWord}
+                          </Text>
                         </Text>
                       </ScrollView>
                     )}
@@ -814,7 +824,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     backgroundColor: 'white',
     width: wp(100),
-    height: hp(50),
+    height: hp(65),
   },
 
   langModalStyle: {
