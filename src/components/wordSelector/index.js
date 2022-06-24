@@ -34,9 +34,8 @@ import Camera, {Constants} from '../../components/camera';
 import ArrowDown from 'react-native-vector-icons/SimpleLineIcons';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
-// const googleDictionaryApi = require('google-dictionary-api');
-
 let whichLang = 'mn';
+let oxfordDef = null;
 let translatedWord = null;
 let displayLang = 'MОНГОЛ ХЭЛ';
 
@@ -70,22 +69,24 @@ const PERMISSION_TYPE = {
 
 export default class WordSelector extends Component {
   state = {
-    selectedWordIdx: -1,
-    wordList: null,
     userWord: '',
     errorMsg: '',
-    loading: false,
-    definition: null,
-    showCamera: false,
-    showWordList: false,
-    recogonizedText: null,
-    selectedWord: null,
-    modalShown: false,
-    langModal: false,
-    startingIdx: null,
-    endingIdx: null,
     mySentence: [],
+    wordList: null,
+    loading: false,
+    endingIdx: null,
+    definition: null,
+    langModal: false,
     permStatus: null,
+    showCamera: false,
+    modalShown: false,
+    startingIdx: null,
+    selectedWord: null,
+    selectedWordIdx: -1,
+    showWordList: false,
+    translateload: false,
+    recogonizedText: null,
+    oxfordDefinition: null,
   };
 
   componentDidMount() {
@@ -169,6 +170,10 @@ export default class WordSelector extends Component {
 
   //Үг олон байвал modal нэг байвал toast аар орчуулна.
   async translateFunction(words) {
+    this.setState({
+      translateload: true,
+    });
+    console.log('whichLang :>> ', whichLang);
     if (words.indexOf(' ') >= 0) {
       const result = await translate(words, {
         to: whichLang,
@@ -176,31 +181,44 @@ export default class WordSelector extends Component {
       translatedWord = result;
       this.setState({
         modalShown: true,
+        translateLoad: false,
       });
     } else {
-      const result = await translate(words, {
-        to: whichLang,
-      });
-      translatedWord = result;
-      Toast.show({
-        type: 'myToast',
-      });
+      if (whichLang == 'en') {
+        this.oxfordTranslation(words);
+      } else {
+        console.log('whichland, word :>> ', whichLang, words);
+        const result = await translate(words, {
+          to: whichLang,
+        });
+        translatedWord = result;
+        Toast.show({
+          type: 'myToast',
+        });
+      }
     }
-    // axios
-    //   .get('https://api.dictionaryapi.dev/api/v2/entries/en/hello')
-    //   .then(function (response) {
-    //     // handle success
-    //     console.log(response);
-    //   })
-    //   .catch(function (error) {
-    //     // handle error
-    //     console.log(error);
-    //   })
-    //   .then(function () {
-    //     // always executed
-    //   });
   }
 
+  oxfordTranslation = async words => {
+    this.setState({
+      modalShown: true,
+    });
+    axios
+      .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${words}`)
+      .then(function (response) {
+        // handle success
+        oxfordDef = response.data[0];
+        console.log('oxfordDef :>> ', oxfordDef);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log('err --->', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Орчуулга олдсонгүй 😢',
+        });
+      });
+  };
   //Changing the recognized text array into string with a space.
   populateWords = () => {
     let myText = [];
@@ -345,32 +363,67 @@ export default class WordSelector extends Component {
             onBackdropPress={() => {
               this.setState({modalShown: false});
             }}>
-            <View style={styles.modalStyle}>
-              {this.translateLoad ? (
-                <ActivityIndicator
-                  style={{justifyContent: 'center', alignItems: 'center'}}
-                  size="small"
-                  color={'#219bd9'}
-                />
+            <>
+              {oxfordDef ? (
+                <View style={styles.modalStyle}>
+                  {this.translateLoad ? (
+                    <ActivityIndicator
+                      style={{justifyContent: 'center', alignItems: 'center'}}
+                      size="small"
+                      color={'#219bd9'}
+                    />
+                  ) : (
+                    <ScrollView style={{marginTop: hp(6.5)}}>
+                      <Text
+                        style={
+                          (FONTS.modalHeaderText,
+                          {alignSelf: 'center', textAlign: 'center'})
+                        }>
+                        <Text
+                          style={{
+                            color: COLORS.brandGray,
+                            fontFamily: 'SFProRounded-Bold',
+                            fontSize: ft(14),
+                          }}>
+                           ОРЧУУЛГА {`\n\n`}
+                        </Text>
+                        {oxfordDef.word}
+                      </Text>
+                    </ScrollView>
+                  )}
+                </View>
               ) : (
-                <ScrollView style={{marginTop: hp(6.5)}}>
-                  <Text
-                    style={
-                      (FONTS.modalHeaderText,
-                      {alignSelf: 'center', textAlign: 'center'})
-                    }>
-                    <Text
-                      style={{
-                        color: COLORS.brand,
-                        fontFamily: 'SFProRounded-Bold',
-                      }}>
-                       ОРЧУУЛГА {`\n\n`}
-                    </Text>
-                    {translatedWord}
-                  </Text>
-                </ScrollView>
+                <View>
+                  <View style={styles.modalStyle}>
+                    {this.translateLoad ? (
+                      <ActivityIndicator
+                        style={{justifyContent: 'center', alignItems: 'center'}}
+                        size="small"
+                        color={'#219bd9'}
+                      />
+                    ) : (
+                      <ScrollView style={{marginTop: hp(6.5)}}>
+                        <Text
+                          style={
+                            (FONTS.modalHeaderText,
+                            {alignSelf: 'center', textAlign: 'center'})
+                          }>
+                          <Text
+                            style={{
+                              color: COLORS.brandGray,
+                              fontFamily: 'SFProRounded-Bold',
+                              fontSize: ft(14),
+                            }}>
+                             ОРЧУУЛГА {`\n\n`}
+                          </Text>
+                          {translatedWord}
+                        </Text>
+                      </ScrollView>
+                    )}
+                  </View>
+                </View>
               )}
-            </View>
+            </>
           </Modal>
           <Modal
             style={{
@@ -589,7 +642,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     backgroundColor: 'white',
     width: wp(100),
-    height: hp(45),
+    height: hp(50),
   },
   langModalStyle: {
     borderBottomLeftRadius: 20,
@@ -632,10 +685,9 @@ const styles = StyleSheet.create({
   myToast: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 60,
-    padding: 10,
+    padding: 20,
     backgroundColor: COLORS.lightBlue,
     borderRadius: 15,
-    marginTop: hp(5),
+    marginTop: hp(15),
   },
 });

@@ -38,6 +38,7 @@ export const FONTS = {
 };
 
 export const COLORS = {
+  brandGray: '#023047',
   brand: '#FF3366',
   lightBlue: '#8ecae6',
   white: '#FFFFFF',
