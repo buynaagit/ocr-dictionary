@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useState} from 'react';
 
 import {
   Alert,
@@ -30,29 +30,17 @@ import {
 } from 'react-native-permissions';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import Camera, {Constants} from '../../components/camera';
-import Sound from 'react-native-vector-icons/AntDesign';
 import Copy from 'react-native-vector-icons/AntDesign';
 import Save from 'react-native-vector-icons/AntDesign';
+import Sound from 'react-native-vector-icons/AntDesign';
+import Camera, {Constants} from '../../components/camera';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
 let whichLang = 'en';
 let oxfordDef = null;
 let translatedWord = null;
 let displayLang = 'Англи хэл';
-
-const langImg = {
-  it: require('../../../assets/italy.png'),
-  fr: require('../../../assets/france.png'),
-  ru: require('../../../assets/russia.png'),
-  sw: require('../../../assets/sweden.png'),
-  tr: require('../../../assets/turkey.png'),
-  de: require('../../../assets/germany.png'),
-  mn: require('../../../assets/mongolia.png'),
-  ko: require('../../../assets/south-korea.png'),
-  en: require('../../../assets/united-states.png'),
-  cz: require('../../../assets/czech-republic.png'),
-};
 
 const axios = require('axios');
 
@@ -89,6 +77,7 @@ export default class WordSelector extends Component {
     translateload: false,
     recogonizedText: null,
     oxfordDefinition: null,
+    copiedText: '',
   };
 
   componentDidMount() {
@@ -124,6 +113,14 @@ export default class WordSelector extends Component {
         // style: 'cancel',
       },
     ]);
+
+  copyToClipboard = word => {
+    Clipboard.setString(word);
+    Toast.show({
+      type: 'success',
+      text1: 'Copied',
+    });
+  };
 
   //Text recognition by camera ( Detect хийсэн текстийг нэг нэгээр нь array-д хийж wordList хувьсагчид хадгална )
   onOCRCapture(recogonizedText) {
@@ -266,8 +263,8 @@ export default class WordSelector extends Component {
                   style={FONTS.DetectedText}
                   menuItems={['орчуулах']}
                   onSelection={({
-                    eventType,
                     content,
+                    eventType,
                     selectionStart,
                     selectionEnd,
                   }) => {
@@ -387,8 +384,12 @@ export default class WordSelector extends Component {
                             <TouchableOpacity style={styles.buttons}>
                               <Save name="staro" size={wp(8)} color={'white'} />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.buttons}>
-                              <Save name="copy1" size={wp(8)} color={'white'} />
+                            <TouchableOpacity
+                              onPress={() => {
+                                this.copyToClipboard(oxfordDef.word);
+                              }}
+                              style={styles.buttons}>
+                              <Copy name="copy1" size={wp(8)} color={'white'} />
                             </TouchableOpacity>
                           </View>
                         </View>
