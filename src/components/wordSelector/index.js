@@ -29,10 +29,11 @@ import {
   openSettings,
 } from 'react-native-permissions';
 
+import Sound from 'react-native-sound';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Copy from 'react-native-vector-icons/AntDesign';
 import Save from 'react-native-vector-icons/AntDesign';
-import Sound from 'react-native-vector-icons/AntDesign';
+import SoundIcon from 'react-native-vector-icons/AntDesign';
 import Camera, {Constants} from '../../components/camera';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
@@ -77,6 +78,7 @@ export default class WordSelector extends Component {
     translateload: false,
     recogonizedText: null,
     oxfordDefinition: null,
+    setLoadingMp3: false,
     copiedText: '',
   };
 
@@ -204,9 +206,7 @@ export default class WordSelector extends Component {
       .then(response => {
         // handle success
         oxfordDef = response.data[0];
-        console.log('oxfordDef :>> ', oxfordDef.meanings[0]);
-        console.log('oxfordDef :>> ', oxfordDef.meanings);
-        console.log('oxfordDef :>> ', oxfordDef);
+        console.log('first', oxfordDef);
         this.setState({
           modalShown: true,
           translateLoad: false,
@@ -231,6 +231,49 @@ export default class WordSelector extends Component {
       myText = myText.replace(/-/g, ' ');
     }
     return myText;
+  };
+
+  playPronunciation(data) {
+    let audioSource;
+    data.forEach((e, index) => {
+      if (e.audio != '') {
+        audioSource = e.audio;
+      }
+    });
+    this.playWord(audioSource);
+  }
+
+  playWord = speakMp3 => {
+    this.setState({
+      setLoadingMp3: true,
+    });
+
+    console.log('Playing ', speakMp3);
+    // Enable playback in silence mode
+    Sound.setCategory('Playback');
+
+    // See notes below about preloading sounds within initialization code below.
+    var player = new Sound(speakMp3, null, error => {
+      if (error) {
+        console.log('failed to load the sound', error);
+        this.setState({setLoadingMp3: false});
+        return;
+      }
+
+      player.setVolume(1);
+
+      // Play the sound with an onEnd callback
+      player.play(success => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+        }
+        this.setState({setLoadingMp3: false});
+
+        player.release();
+      });
+    });
   };
 
   render() {
@@ -327,8 +370,6 @@ export default class WordSelector extends Component {
         )}
         <View>
           <Modal
-            // animationIn={'zoomIn'}
-            // animationOut={'zoomOut'}
             style={{alignItems: 'center', justifyContent: 'flex-end', top: 20}}
             isVisible={this.state.modalShown}
             onBackdropPress={() => {
@@ -347,40 +388,68 @@ export default class WordSelector extends Component {
                     <View>
                       <View style={{zIndex: 5}}>
                         <View style={styles.wordInfoContainer}>
-                          <View style={{alignSelf: 'center'}}>
+                          <TouchableOpacity
+                            onPress={() => {
+                              this.setState({modalShown: false});
+                            }}
+                            style={styles.modalCloseBtn}
+                          />
+                          <View
+                            style={{
+                              alignSelf: 'center',
+                            }}>
                             <Text
-                              style={[FONTS.modalHeaderText, {color: 'white'}]}>
-                              {oxfordDef.word} {` `}
-                              <Text
-                                style={{
-                                  fontFamily: 'SFProRounded-Regular',
-                                  fontSize: ft(18),
-                                }}>
-                                {oxfordDef.meanings[0].partOfSpeech}
+                              style={[
+                                FONTS.modalHeaderText,
+                                {
+                                  color: 'white',
+                                  textAlign: 'center',
+                                  fontSize: ft(30),
+                                },
+                              ]}>
+                              {oxfordDef.word}
+                            </Text>
+                            <View style={{marginTop: 10}}>
+                              <Text style={styles.phonetic}>
+                                {oxfordDef.phonetic}
                               </Text>
-                            </Text>
-                            <Text
-                              style={{
-                                fontFamily: 'SFProRounded-Regular',
-                                fontSize: ft(18),
-                                fontStyle: 'italic',
-                                color: 'white',
-                              }}>
-                              {oxfordDef.phonetic}
-                            </Text>
+                              <>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                  }}>
+                                  {oxfordDef.meanings.map((e, index) => (
+                                    <View style={{marginRight: 5}}>
+                                      <Text style={styles.partOfSpeech}>
+                                        {e.partOfSpeech}
+                                      </Text>
+                                    </View>
+                                  ))}
+                                </View>
+                              </>
+                            </View>
                           </View>
                           <View
                             style={{
                               flexDirection: 'row',
                               justifyContent: 'space-evenly',
                             }}>
-                            <TouchableOpacity style={styles.buttons}>
-                              <Sound
-                                name="sound"
-                                size={wp(8)}
-                                color={'white'}
-                              />
-                            </TouchableOpacity>
+                            {oxfordDef.phonetics.length > 0 && (
+                              <TouchableOpacity
+                                disabled={this.state.setLoadingMp3}
+                                onPress={() => {
+                                  this.playPronunciation(oxfordDef.phonetics);
+                                }}
+                                style={styles.buttons}>
+                                <SoundIcon
+                                  name="sound"
+                                  size={wp(8)}
+                                  color={
+                                    this.state.setLoadingMp3 ? 'black' : 'white'
+                                  }
+                                />
+                              </TouchableOpacity>
+                            )}
                             <TouchableOpacity style={styles.buttons}>
                               <Save name="staro" size={wp(8)} color={'white'} />
                             </TouchableOpacity>
@@ -394,7 +463,10 @@ export default class WordSelector extends Component {
                           </View>
                         </View>
                         <ScrollView style={styles.definitionContainer}>
-                          {oxfordDef.meanings[0].synonyms.length > 0 && (
+                          <View
+                            style={{
+                              paddingBottom: hp(20),
+                            }}>
                             <View
                               style={{
                                 flexDirection: 'row',
@@ -412,31 +484,56 @@ export default class WordSelector extends Component {
                                 ]}>
                                 synonyms
                               </Text>
-                              {oxfordDef.meanings[0].synonyms
-                                .slice(0, 3)
-                                .map((e, index) => (
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                    }}>
-                                    <View
-                                      style={{
-                                        justifyContent: 'center',
-                                        paddingRight: 8,
-                                      }}>
-                                      <Text
-                                        style={{
-                                          fontFamily: 'SFProRounded-Regular',
-                                          color: COLORS.genderText,
-                                        }}>
-                                        {e}
-                                      </Text>
-                                    </View>
-                                  </View>
+                              <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}>
+                                {oxfordDef.meanings.map((e, index) => (
+                                  <>
+                                    {e.synonyms.map((element, index_) => (
+                                      <>
+                                        {e.synonyms.length > 0 ? (
+                                          <View
+                                            key={`=-${index}`}
+                                            style={{
+                                              flexDirection: 'row',
+                                            }}>
+                                            <View
+                                              style={{
+                                                justifyContent: 'center',
+                                                paddingRight: 8,
+                                              }}>
+                                              <Text
+                                                style={{
+                                                  fontFamily:
+                                                    'SFProRounded-Regular',
+                                                  color: COLORS.genderText,
+                                                }}>
+                                                {element}
+                                              </Text>
+                                            </View>
+                                          </View>
+                                        ) : (
+                                          <View>
+                                            <Text
+                                              style={[
+                                                FONTS.SelectedLanguageText,
+                                                {
+                                                  textAlign: 'left',
+                                                  paddingRight: 10,
+                                                  fontSize: ft(12),
+                                                  color: COLORS.warningText,
+                                                },
+                                              ]}>
+                                              No synonym found
+                                            </Text>
+                                          </View>
+                                        )}
+                                      </>
+                                    ))}
+                                  </>
                                 ))}
+                              </ScrollView>
                             </View>
-                          )}
-                          {oxfordDef.meanings[0].antonyms.length > 0 && (
                             <View
                               style={{
                                 flexDirection: 'row',
@@ -454,69 +551,97 @@ export default class WordSelector extends Component {
                                 ]}>
                                 antonyms
                               </Text>
-                              {oxfordDef.meanings[0].antonyms
-                                .slice(0, 3)
-                                .map((e, index) => (
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                    }}>
-                                    <View
-                                      style={{
-                                        justifyContent: 'center',
-                                        paddingRight: 8,
-                                      }}>
-                                      <Text
-                                        style={{
-                                          fontFamily: 'SFProRounded-Regular',
-                                          color: COLORS.genderText,
-                                        }}>
-                                        {e}
-                                      </Text>
-                                    </View>
-                                  </View>
+                              <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}>
+                                {oxfordDef.meanings.map((e, index) => (
+                                  <>
+                                    {e.antonyms.map((element, index) => (
+                                      <>
+                                        <View
+                                          key={`=-${index}`}
+                                          style={{
+                                            flexDirection: 'row',
+                                          }}>
+                                          <View
+                                            style={{
+                                              justifyContent: 'center',
+                                              paddingRight: 8,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontFamily:
+                                                  'SFProRounded-Regular',
+                                                color: COLORS.genderText,
+                                              }}>
+                                              {element}
+                                            </Text>
+                                          </View>
+                                        </View>
+                                      </>
+                                    ))}
+                                  </>
                                 ))}
+                              </ScrollView>
                             </View>
-                          )}
-                          <View>
-                            <Text
-                              style={[
-                                FONTS.DetectedText,
-                                {textAlign: 'center'},
-                              ]}>
-                              Definition
-                            </Text>
-                            {oxfordDef.meanings[0].definitions
-                              .slice(0, 5)
-                              .map((e, index) => (
+                            <View>
+                              <Text
+                                style={[
+                                  FONTS.DetectedText,
+                                  {textAlign: 'center'},
+                                ]}>
+                                Definition
+                              </Text>
+                              {oxfordDef.meanings.map((e, index) => (
                                 <View
+                                  key={`=-${index}`}
                                   style={{
                                     marginTop: 10,
                                   }}>
-                                  <View style={{flexDirection: 'row'}}>
-                                    <View
-                                      style={{
-                                        justifyContent: 'center',
-                                        paddingRight: 10,
-                                      }}>
-                                      <Text
-                                        style={{
-                                          fontFamily: 'SFProRounded-Semibold',
-                                          color: COLORS.brandGray,
-                                        }}>
-                                        {index + 1}
-                                      </Text>
-                                    </View>
-                                    <Text
-                                      style={{
-                                        fontFamily: 'SFProRounded-Regular',
-                                        fontSize: ft(13),
-                                      }}>
-                                      {e.definition}
-                                    </Text>
-                                  </View>
+                                  <Text
+                                    style={{
+                                      fontSize: ft(14),
+                                      fontFamily: 'SFProRounded-Semibold',
+                                    }}>
+                                    {e.partOfSpeech}
+                                  </Text>
+                                  <>
+                                    {e.definitions
+                                      .slice(0, 3)
+                                      .map((element, index_) => (
+                                        <View
+                                          style={{
+                                            flexDirection: 'row',
+                                            marginTop: 10,
+                                          }}>
+                                          <View
+                                            style={{
+                                              justifyContent: 'center',
+                                              paddingRight: 10,
+                                            }}>
+                                            <Text
+                                              style={{
+                                                fontFamily:
+                                                  'SFProRounded-Semibold',
+                                                color: COLORS.brandGray,
+                                              }}>
+                                              {index_ + 1}
+                                            </Text>
+                                          </View>
+                                          <Text
+                                            style={{
+                                              fontFamily:
+                                                'SFProRounded-Regular',
+                                              fontSize: ft(13),
+                                            }}>
+                                            {element.definition}
+                                          </Text>
+                                        </View>
+                                      ))}
+                                  </>
                                 </View>
                               ))}
+                            </View>
                           </View>
                         </ScrollView>
                       </View>
@@ -785,9 +910,14 @@ const styles = StyleSheet.create({
   modalStyleOxford: {
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    backgroundColor: 'red',
     width: wp(100),
     height: hp(90),
+  },
+  partOfSpeech: {
+    fontFamily: 'SFProRounded-Regular',
+    fontSize: ft(14),
+    color: 'white',
+    textAlign: 'center',
   },
   wordInfoContainer: {
     backgroundColor: COLORS.brandGray2,
@@ -861,6 +991,13 @@ const styles = StyleSheet.create({
 
     elevation: 5,
   },
+  phonetic: {
+    fontFamily: 'SFProRounded-Regular',
+    fontSize: ft(18),
+    fontStyle: 'italic',
+    color: 'white',
+    textAlign: 'center',
+  },
   flagIconSelected: {
     width: wp(9),
     height: wp(9),
@@ -882,5 +1019,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightBlue,
     borderRadius: 15,
     marginTop: hp(15),
+  },
+  modalCloseBtn: {
+    height: wp(2),
+    width: wp(35),
+    borderRadius: 20,
+    alignSelf: 'center',
+    backgroundColor: 'white',
   },
 });
