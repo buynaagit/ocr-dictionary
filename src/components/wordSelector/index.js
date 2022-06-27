@@ -294,7 +294,6 @@ export default class WordSelector extends Component {
               />
             </TouchableOpacity>
           </View>
-
           <View>
             <ScrollView>
               <View
@@ -727,19 +726,20 @@ export default class WordSelector extends Component {
                       style={styles.flagImg}
                     />
                   </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => {
-                      whichLang = 'fr';
-                      displayLang = 'ФРАНЦ ХЭЛ';
-                      this.setState({langModal: false});
-                    }}
-                    style={whichLang == 'fr' && styles.flagIcon}>
-                    <Image
-                      source={require('../../../assets/france.png')}
-                      style={styles.flagImg}
-                    />
-                  </TouchableOpacity>
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        whichLang = 'en';
+                        displayLang = 'АНГЛИ ХЭЛ';
+                        this.setState({langModal: false});
+                      }}
+                      style={whichLang == 'en' && styles.flagIcon}>
+                      <Image
+                        source={require('../../../assets/united-states.png')}
+                        style={styles.flagImg}
+                      />
+                    </TouchableOpacity>
+                  </View>
                   <TouchableOpacity
                     onPress={() => {
                       whichLang = 'ru';
@@ -814,21 +814,18 @@ export default class WordSelector extends Component {
                       style={styles.flagImg}
                     />
                   </TouchableOpacity>
-
-                  <View>
-                    <TouchableOpacity
-                      onPress={() => {
-                        whichLang = 'en';
-                        displayLang = 'АНГЛИ ХЭЛ';
-                        this.setState({langModal: false});
-                      }}
-                      style={whichLang == 'en' && styles.flagIcon}>
-                      <Image
-                        source={require('../../../assets/united-states.png')}
-                        style={styles.flagImg}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      whichLang = 'fr';
+                      displayLang = 'ФРАНЦ ХЭЛ';
+                      this.setState({langModal: false});
+                    }}
+                    style={whichLang == 'fr' && styles.flagIcon}>
+                    <Image
+                      source={require('../../../assets/france.png')}
+                      style={styles.flagImg}
+                    />
+                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
                       whichLang = 'tr';
@@ -855,11 +852,6 @@ export default class WordSelector extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
     paddingHorizontal: 10,
     backgroundColor: 'white',
   },
@@ -943,11 +935,11 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   btnContainer: {
+    zIndex: 1,
+    bottom: wp(8),
     position: 'absolute',
-    bottom: 10,
     flexDirection: 'row',
     alignSelf: 'center',
-    zIndex: 1,
   },
   modalStyle: {
     paddingHorizontal: wp(10),
