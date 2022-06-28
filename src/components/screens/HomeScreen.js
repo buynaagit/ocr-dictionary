@@ -56,7 +56,7 @@ const HomeScreen = ({navigation}) => {
         </View>
       </View>
       <Button
-        title="camera"
+        title="text recognition"
         onPress={() => {
           navigation.navigate('WordSelector');
         }}
