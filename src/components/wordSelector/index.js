@@ -36,6 +36,7 @@ import Save from 'react-native-vector-icons/AntDesign';
 import SoundIcon from 'react-native-vector-icons/AntDesign';
 import Camera, {Constants} from '../../components/camera';
 import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
 let whichLang = 'en';
@@ -62,6 +63,7 @@ export default class WordSelector extends Component {
   state = {
     userWord: '',
     errorMsg: '',
+    copiedText: '',
     mySentence: [],
     wordList: null,
     loading: false,
@@ -75,11 +77,10 @@ export default class WordSelector extends Component {
     selectedWord: null,
     selectedWordIdx: -1,
     showWordList: false,
+    setLoadingMp3: false,
     translateload: false,
     recogonizedText: null,
     oxfordDefinition: null,
-    setLoadingMp3: false,
-    copiedText: '',
   };
 
   componentDidMount() {
@@ -167,6 +168,14 @@ export default class WordSelector extends Component {
         </Text>
       </View>
     ),
+  };
+
+  storeWord = async value => {
+    try {
+      await AsyncStorage.setItem('@storage_Key', value);
+    } catch (e) {
+      // saving error
+    }
   };
 
   //Үг олон байвал modal нэг байвал toast аар орчуулна.
@@ -328,7 +337,8 @@ export default class WordSelector extends Component {
               ]}>
               <TouchableOpacity
                 onPress={async () => {
-                  this.checkPermission(PERMISSION_TYPE.camera);
+                  // this.checkPermission(PERMISSION_TYPE.camera);
+                  navigation.openDrawer();
                   // this.English2English();
                 }}>
                 <Icon name="ios-camera" size={wp(10)} color={'white'} />
@@ -408,24 +418,25 @@ export default class WordSelector extends Component {
                               ]}>
                               {oxfordDef.word}
                             </Text>
+                            <>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignSelf: 'center',
+                                }}>
+                                {oxfordDef.meanings.map((e, index) => (
+                                  <View style={{marginRight: 5}}>
+                                    <Text style={styles.partOfSpeech}>
+                                      {e.partOfSpeech}
+                                    </Text>
+                                  </View>
+                                ))}
+                              </View>
+                            </>
                             <View style={{marginTop: 10}}>
                               <Text style={styles.phonetic}>
                                 {oxfordDef.phonetic}
                               </Text>
-                              <>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                  }}>
-                                  {oxfordDef.meanings.map((e, index) => (
-                                    <View style={{marginRight: 5}}>
-                                      <Text style={styles.partOfSpeech}>
-                                        {e.partOfSpeech}
-                                      </Text>
-                                    </View>
-                                  ))}
-                                </View>
-                              </>
                             </View>
                           </View>
                           <View
