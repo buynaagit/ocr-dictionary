@@ -1,9 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const Header = ({navigation, LeftButton, RightButton, Title, isAtRoot}) => {
+const Header = ({navigation, LeftButton, RightButton, Title}) => {
   return (
     <View style={styles.header}>
       <View style={styles.leftButton}>
@@ -13,18 +14,9 @@ const Header = ({navigation, LeftButton, RightButton, Title, isAtRoot}) => {
           <TouchableOpacity
             style={{marginLeft: 10}}
             onPress={() => {
-              if (!navigation.canGoBack() || isAtRoot) navigation.openDrawer();
-              else navigation.goBack();
+              navigation.pop();
             }}>
-            <Icon
-              name={
-                !navigation.canGoBack() || isAtRoot
-                  ? 'ios-menu'
-                  : 'ios-arrow-back'
-              }
-              size={30}
-              color={'gray'}
-            />
+            <Icon name={'ios-arrow-back'} size={30} color={'gray'} />
           </TouchableOpacity>
         )}
       </View>
@@ -38,21 +30,6 @@ const Header = ({navigation, LeftButton, RightButton, Title, isAtRoot}) => {
       <View style={styles.rightButton}>{RightButton && <RightButton />}</View>
     </View>
   );
-};
-
-Header.propTypes = {
-  navigation: PropTypes.object,
-  Title: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-  LeftButton: PropTypes.object,
-  RightButton: PropTypes.object,
-  isAtRoot: PropTypes.bool,
-};
-
-Header.defaultProps = {
-  Title: '',
-  LeftButton: null,
-  RightButton: null,
-  isAtRoot: false,
 };
 
 const styles = StyleSheet.create({

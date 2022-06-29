@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component} from 'react';
 
 import {
   Alert,
@@ -18,31 +18,38 @@ import Modal from 'react-native-modal';
 import translate from 'translate-google-api';
 import {COLORS, FONTS} from '../../constants';
 import Toast from 'react-native-toast-message';
-import commonStyles from '../../../commonStyles';
 import {ft, hp, wp} from '../../constants/theme';
 
-import {
-  check,
-  PERMISSIONS,
-  RESULTS,
-  request,
-  openSettings,
-} from 'react-native-permissions';
+import {check, PERMISSIONS, openSettings} from 'react-native-permissions';
 
 import Sound from 'react-native-sound';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Copy from 'react-native-vector-icons/AntDesign';
 import Save from 'react-native-vector-icons/AntDesign';
-import SoundIcon from 'react-native-vector-icons/AntDesign';
+import HeaderComponent from '../common/HeaderComponent';
 import Camera, {Constants} from '../../components/camera';
 import Clipboard from '@react-native-clipboard/clipboard';
+import SoundIcon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SelectableText} from '@alentoma/react-native-selectable-text';
 
-let whichLang = 'en';
+let whichLang = 'mn';
 let oxfordDef = null;
 let translatedWord = null;
 let displayLang = 'Англи хэл';
+
+const langImg = {
+  mn: require('../../../assets/mongolia.png'),
+  fr: require('../../../assets/france.png'),
+  ru: require('../../../assets/russia.png'),
+  it: require('../../../assets/italy.png'),
+  sv: require('../../../assets/sweden.png'),
+  de: require('../../../assets/germany.png'),
+  ko: require('../../../assets/south-korea.png'),
+  cs: require('../../../assets/czech-republic.png'),
+  en: require('../../../assets/united-states.png'),
+  tr: require('../../../assets/turkey.png'),
+};
 
 const axios = require('axios');
 
@@ -288,21 +295,28 @@ export default class WordSelector extends Component {
   render() {
     return (
       <>
-        <SafeAreaView style={[styles.container, this.props.style]}>
-          <View
-            style={{
-              alignSelf: 'center',
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({langModal: true});
-              }}>
-              <Image
-                style={{width: wp(3.3), height: wp(3.3)}}
-                source={require('../../../assets/downArrow.png')}
-              />
-            </TouchableOpacity>
-          </View>
+        <View style={[styles.container, this.props.style]}>
+          <HeaderComponent
+            title={'Text Recognition'}
+            rightComponent={
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({langModal: true});
+                }}>
+                <View style={{flexDirection: 'row'}}>
+                  <View
+                    style={{alignItems: 'center', justifyContent: 'center'}}>
+                    <Image
+                      source={langImg[whichLang]}
+                      style={styles.flagIconSelected}
+                    />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            }
+          />
+
+          {/* {'Текстийг дурын хэмжээгээр сонгож орчуулах комманд өгнө'} */}
           <View>
             <ScrollView>
               <View
@@ -329,26 +343,10 @@ export default class WordSelector extends Component {
               </View>
             </ScrollView>
           </View>
-          <View style={styles.btnContainer}>
-            <View
-              style={[
-                styles.btnstyle,
-                {justifyContent: 'center', paddingHorizontal: wp(2)},
-              ]}>
-              <TouchableOpacity
-                onPress={async () => {
-                  // this.checkPermission(PERMISSION_TYPE.camera);
-                  navigation.openDrawer();
-                  // this.English2English();
-                }}>
-                <Icon name="ios-camera" size={wp(10)} color={'white'} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </SafeAreaView>
+        </View>
 
+        {/* {'Display the camera to capture text'} */}
         {
-          // 20200502 - JustCode:
           // Display the camera to capture text
           this.state.showCamera && (
             <Camera
@@ -370,13 +368,7 @@ export default class WordSelector extends Component {
           )
         }
 
-        {this.state.loading && (
-          <ActivityIndicator
-            style={commonStyles.loading}
-            size="large"
-            color={'#219bd9'}
-          />
-        )}
+        {/* {'Translation Modal, and Select language Modal'} */}
         <View>
           <Modal
             style={{alignItems: 'center', justifyContent: 'flex-end', top: 20}}
@@ -473,10 +465,7 @@ export default class WordSelector extends Component {
                           </View>
                         </View>
                         <ScrollView style={styles.definitionContainer}>
-                          <View
-                            style={{
-                              paddingBottom: hp(20),
-                            }}>
+                          <View>
                             <View
                               style={{
                                 flexDirection: 'row',
@@ -855,6 +844,27 @@ export default class WordSelector extends Component {
           </Modal>
         </View>
 
+        {/* {`Camera icon`} */}
+        <View style={styles.btnContainer}>
+          <View
+            style={[
+              styles.cameraIcon,
+              {
+                justifyContent: 'center',
+                paddingHorizontal: 15,
+                paddingVertical: 5,
+              },
+            ]}>
+            <TouchableOpacity
+              onPress={async () => {
+                this.checkPermission(PERMISSION_TYPE.camera);
+                // this.English2English();
+              }}>
+              <Icon name="ios-camera" size={wp(10)} color={'white'} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <Toast ref={ref => Toast.setRef(ref)} config={this.customToast} />
       </>
     );
@@ -863,18 +873,8 @@ export default class WordSelector extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 10,
     backgroundColor: 'white',
-  },
-  header: {
-    padding: 4,
-    borderRadius: 12,
-    backgroundColor: COLORS.brand,
-  },
-  headerText: {
-    ...FONTS.text3,
-    textAlign: 'center',
-    color: 'white',
+    paddingBottom: hp(20),
   },
   buttons: {
     width: wp(16),
@@ -946,11 +946,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   btnContainer: {
-    zIndex: 1,
-    bottom: wp(8),
+    zIndex: 10,
+    bottom: hp(3),
     position: 'absolute',
-    flexDirection: 'row',
     alignSelf: 'center',
+  },
+  cameraIcon: {
+    borderRadius: 8,
+    backgroundColor: '#023047',
   },
   modalStyle: {
     paddingHorizontal: wp(10),
@@ -1011,10 +1014,7 @@ const styles = StyleSheet.create({
     height: wp(16),
     marginHorizontal: wp(1),
   },
-  btnstyle: {
-    borderRadius: 8,
-    backgroundColor: '#023047',
-  },
+
   myToast: {
     justifyContent: 'center',
     alignItems: 'center',
