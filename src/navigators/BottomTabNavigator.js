@@ -8,7 +8,7 @@ import {useTheme} from '@react-navigation/native';
 import Search from 'react-native-vector-icons/Foundation';
 import Saved from 'react-native-vector-icons/AntDesign';
 import HomeScreen from '../components/screens/HomeScreen';
-import Profile from '../components/screens/Profile';
+import Favourites from '../components/screens/FavWords';
 import {wp, COLORS, ft} from '../constants/theme';
 
 const Tab = createMaterialBottomTabNavigator();
@@ -33,8 +33,8 @@ const BottomTabNavigator = route => {
         })}
       />
       <Tab.Screen
-        name="ProfileTab"
-        component={Profile}
+        name="Favourites"
+        component={Favourites}
         options={({}) => ({
           tabBarLabel: <Text style={styles.label}>Favourites</Text>,
           tabBarIcon: ({color}) => (

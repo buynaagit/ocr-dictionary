@@ -4,8 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CodePushDeploymentKey</key>
+	<string>NuYN2R_-PGy4Le1IWbTh23p16QjdZ6OdKZvRT</string>
 	<key>CFBundleDisplayName</key>
-	<string>hippodic</string>
+	<string>dictioneasy</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

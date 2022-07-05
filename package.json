@@ -5,9 +5,12 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "pod": "npx pod install",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "codepush-ios": "appcenter codepush release-react -a 6uynaa-gmail.com/ocrDic-1 -d Production",
+    "codepush-android": "appcenter codepush release-react -a 6uynaa-gmail.com/ocrDic -d Production"
   },
   "dependencies": {
     "@alentoma/react-native-selectable-text": "^1.5.3",
@@ -23,6 +26,7 @@
     "react": "17.0.1",
     "react-native": "0.64.0",
     "react-native-camera": "^3.43.6",
+    "react-native-code-push": "^7.0.4",
     "react-native-elements": "^3.4.2",
     "react-native-fs": "^2.17.0",
     "react-native-gesture-handler": "^2.5.0",
@@ -30,6 +34,7 @@
     "react-native-paper": "^4.12.1",
     "react-native-permissions": "^3.0.5",
     "react-native-reanimated": "^2.8.0",
+    "react-native-redash": "^18.0.0",
     "react-native-safe-area-context": "^4.3.1",
     "react-native-screens": "^3.13.1",
     "react-native-sound": "^0.11.0",

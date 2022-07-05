@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">hippodic</string>
+   <string  moduleConfig="true" name="CodePushDeploymentKey">Zg8g9jYhV39BPrqxmTvR7dp7vK3kkkHFm-zJJ</string>
 </resources>

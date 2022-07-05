@@ -342,6 +342,18 @@ export default class WordSelector extends Component {
                 />
               </View>
             </ScrollView>
+
+            {/* {`Camera icon`} */}
+            <View style={styles.btnContainer}>
+              <TouchableOpacity
+                style={styles.cameraIcon}
+                onPress={async () => {
+                  this.checkPermission(PERMISSION_TYPE.camera);
+                  // this.English2English();
+                }}>
+                <Icon name="ios-camera" size={wp(10)} color={'white'} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -844,27 +856,6 @@ export default class WordSelector extends Component {
           </Modal>
         </View>
 
-        {/* {`Camera icon`} */}
-        <View style={styles.btnContainer}>
-          <View
-            style={[
-              styles.cameraIcon,
-              {
-                justifyContent: 'center',
-                paddingHorizontal: 15,
-                paddingVertical: 5,
-              },
-            ]}>
-            <TouchableOpacity
-              onPress={async () => {
-                this.checkPermission(PERMISSION_TYPE.camera);
-                // this.English2English();
-              }}>
-              <Icon name="ios-camera" size={wp(10)} color={'white'} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
         <Toast ref={ref => Toast.setRef(ref)} config={this.customToast} />
       </>
     );
@@ -873,7 +864,6 @@ export default class WordSelector extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
     paddingBottom: hp(20),
   },
   buttons: {
@@ -945,15 +935,13 @@ const styles = StyleSheet.create({
   okButton: {
     fontSize: 30,
   },
-  btnContainer: {
-    zIndex: 10,
-    bottom: hp(3),
-    position: 'absolute',
-    alignSelf: 'center',
-  },
+  btnContainer: {position: 'absolute', bottom: 50, alignSelf: 'center'},
   cameraIcon: {
     borderRadius: 8,
     backgroundColor: '#023047',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
   },
   modalStyle: {
     paddingHorizontal: wp(10),
