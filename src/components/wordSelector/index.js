@@ -367,7 +367,7 @@ export default class WordSelector extends Component {
               <View
                 style={{
                   padding: 10,
-                  marginBottom: hp(10),
+                  marginBottom: hp(18),
                 }}>
                 <SelectableText
                   style={FONTS.DetectedText}
@@ -380,29 +380,27 @@ export default class WordSelector extends Component {
                   }) => {
                     this.translateFunction(content);
                   }}
-                  // value={this.populateWords()}
-                  value={
-                    'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.'
-                  }
+                  value={this.populateWords()}
+                  // value={
+                  //   'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.'
+                  // }
                 />
               </View>
             </ScrollView>
-
-            {/* {`Camera icon`} */}
-            <View style={styles.btnContainer}>
-              <TouchableOpacity
-                style={styles.cameraIcon}
-                onPress={async () => {
-                  this.checkPermission(PERMISSION_TYPE.camera);
-                  // this.English2English();
-                }}>
-                <Icon name="ios-camera" size={wp(10)} color={'white'} />
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
 
-        {/* {'Display the camera to capture text'} */}
+        {/* {`Camera icon`} */}
+        <View style={styles.btnContainer}>
+          <TouchableOpacity
+            style={styles.cameraIcon}
+            onPress={async () => {
+              this.checkPermission(PERMISSION_TYPE.camera);
+            }}>
+            <Icon name="ios-camera" size={wp(10)} color={'white'} />
+          </TouchableOpacity>
+        </View>
+
         {
           // Display the camera to capture text
           this.state.showCamera && (
@@ -922,9 +920,7 @@ export default class WordSelector extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: hp(20),
-  },
+  container: {backgroundColor: 'white', height: '100%'},
   buttons: {
     width: wp(16),
     height: wp(16),
@@ -933,19 +929,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
   },
-  wordList: {
-    paddingBottom: hp(20),
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 4,
-  },
-  selectedWord: {
-    flex: 0,
-    borderColor: COLORS.brand,
-    backgroundColor: COLORS.brand,
-    padding: 4,
-  },
+
   backLayerGray: {
     backgroundColor: '#293241',
     width: wp(30),
@@ -953,11 +937,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: hp(20),
     right: 0,
-  },
-  nonSelectedWord: {
-    flex: 0,
-    borderWidth: 0,
-    padding: 4,
   },
   modalStyleOxford: {
     borderTopLeftRadius: 40,
@@ -994,7 +973,7 @@ const styles = StyleSheet.create({
   okButton: {
     fontSize: 30,
   },
-  btnContainer: {position: 'absolute', bottom: 50, alignSelf: 'center'},
+  btnContainer: {position: 'absolute', bottom: 20, alignSelf: 'center'},
   cameraIcon: {
     borderRadius: 8,
     backgroundColor: '#023047',

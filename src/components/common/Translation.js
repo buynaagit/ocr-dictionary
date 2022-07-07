@@ -82,27 +82,36 @@ const Translation = props => {
   const storeData = async value => {
     console.log('value', value);
     let arr = [];
-
     try {
       const favWords = await AsyncStorage.getItem('@favWords');
       if (favWords !== null) {
         arr = JSON.parse(favWords);
+        console.log('arr', arr);
         console.log('getDatafromAsync', arr);
       }
     } catch (e) {
       console.log('error storeData Async', e);
     }
-
-    if (arr.includes(value) && arr.length > 0) {
+    if (arr.length == 0) {
+      try {
+        arr.push({key: 0, word: value});
+        console.log('arr', arr);
+        const jsonValue = JSON.stringify(arr);
+        props.setSaved(true);
+        await AsyncStorage.setItem('@favWords', jsonValue);
+      } catch (e) {
+        // saving error
+      }
+    } else if (arr.filter(e => e.word === value).length > 0) {
       Toast.show({
         type: 'error',
         text1: 'You have already saved the word',
       });
     } else {
       try {
-        arr.push(value);
+        arr.push({key: parseInt(arr[arr.length - 1].key) + 1, word: value});
+        console.log('arr', arr);
         const jsonValue = JSON.stringify(arr);
-        console.log('jsonValue', jsonValue);
         props.setSaved(true);
         await AsyncStorage.setItem('@favWords', jsonValue);
       } catch (e) {

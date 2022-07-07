@@ -37,18 +37,7 @@ const Profile = ({navigation}) => {
       const favWords_ = await AsyncStorage.getItem('@favWords');
       if (favWords_ !== null) {
         let favs = JSON.parse(favWords_);
-        setOriginalData(JSON.parse(favWords_));
         console.log('favs', favs);
-        let tempData = [];
-
-        // favs.map((word, index) => {
-        //   tempData.push({
-        //     key: `${index}`,
-        //     word: word,
-        //   });
-        // });
-
-        console.log('tempData------------------>>>>>>>>>', tempData);
         setFavWords(favs);
         setRefreshing(false);
       }
@@ -85,16 +74,10 @@ const Profile = ({navigation}) => {
       });
   };
 
-  const closeRow = (rowMap, wordName) => {
-    if (rowMap[wordName]) {
-      rowMap[wordName].closeRow();
-    }
-  };
-
-  const storeData = async arr => {
+  const deleteWordAsync = async arr => {
     try {
-      const jsonValue = JSON.stringify(arr);
       console.log('jsonValue', jsonValue);
+      const jsonValue = JSON.stringify(arr);
       await AsyncStorage.setItem('@favWords', jsonValue);
     } catch (e) {
       // saving error
@@ -125,13 +108,13 @@ const Profile = ({navigation}) => {
         style={[styles.rowFront, {height: rowHeightAnimatedValue}]}>
         <TouchableHighlight
           style={styles.rowFrontVisible}
-          onPress={() => navigateToTranslation(data.item)}
+          onPress={() => navigateToTranslation(data.item.word)}
           underlayColor={'#aaa'}>
           <View>
             <Text
               style={[FONTS.favWord, {textAlign: 'center'}]}
               numberOfLines={1}>
-              {data.item}
+              {data.item.word}
             </Text>
           </View>
         </TouchableHighlight>
@@ -146,20 +129,24 @@ const Profile = ({navigation}) => {
       <VisibleItem
         data={data}
         rowHeightAnimatedValue={rowHeightAnimatedValue}
-        removeRow={() => deleteRow(rowMap, data.item)}
+        removeRow={() => deleteRow(rowMap, data.item.key)}
       />
     );
   };
 
-  const deleteRow = (rowMap, wordName) => {
-    closeRow(rowMap, wordName);
-    console.log('rowKey', wordName);
+  const closeRow = (rowMap, rowKey) => {
+    if (rowMap[rowKey]) {
+      rowMap[rowKey].closeRow();
+    }
+  };
 
+  const deleteRow = (rowMap, rowKey) => {
+    closeRow(rowMap, rowKey);
     const newData = [...favWords];
-    const prevIndex = favWords.findIndex(item => item.word === wordName);
+    const prevIndex = favWords.findIndex(item => item.key === rowKey);
+    console.log('prevIndex', prevIndex);
     newData.splice(prevIndex, 1);
-    storeData(newData);
-    console.log('newData', newData);
+    deleteWordAsync(newData);
     setFavWords(newData);
   };
 
