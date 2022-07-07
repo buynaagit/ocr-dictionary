@@ -25,12 +25,13 @@ export const hp = heightPercent => {
 };
 
 export const FONTS = {
+  favWord: {fontFamily: 'SFProRounded-Semibold', fontSize: ft(12)},
   chooselangText: {fontFamily: 'SFProRounded-Bold', fontSize: ft(11)},
-  chooseLangText2: {fontFamily: 'SFProRounded-Regular', fontSize: ft(9)},
+  TranslatedWord: {fontFamily: 'SFProRounded-Bold', fontSize: ft(11)},
   modalHeaderText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(22)},
+  chooseLangText2: {fontFamily: 'SFProRounded-Regular', fontSize: ft(9)},
   SelectLanguageText: {fontFamily: 'SFProRounded-Heavy', fontSize: ft(16)},
   SelectedLanguageText: {fontFamily: 'SFProRounded-Semibold', fontSize: ft(10)},
-  TranslatedWord: {fontFamily: 'SFProRounded-Bold', fontSize: ft(11)},
   DetectedText: {
     fontFamily: 'SFProRounded-Regular',
     fontSize: ft(16),

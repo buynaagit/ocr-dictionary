@@ -49,6 +49,7 @@ export default ({type}: CardProps) => {
     case Cards.Card6:
       source = require('../../../assets/images/card6.png');
       break;
+
     default:
       throw Error('Invalid card style');
   }

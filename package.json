@@ -38,6 +38,8 @@
     "react-native-safe-area-context": "^4.3.1",
     "react-native-screens": "^3.13.1",
     "react-native-sound": "^0.11.0",
+    "react-native-swipe-list-view": "^3.2.9",
+    "react-native-swipeable": "^0.6.0",
     "react-native-toast-message": "^1.4.9",
     "react-native-vector-icons": "^8.1.0",
     "translate-google-api": "^1.0.4"

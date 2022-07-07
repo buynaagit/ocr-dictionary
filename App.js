@@ -5,6 +5,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import WordSelector from './src/components/wordSelector/index';
+import Translation from './src/components/common/Translation';
 import BottomTabNavigator from './src/navigators/BottomTabNavigator';
 
 const Stack = createStackNavigator();
@@ -18,6 +19,7 @@ const MyComponent = () => {
         initialRouteName={'Home'}>
         <Stack.Screen name="Home" component={BottomTabNavigator} />
         <Stack.Screen name="WordSelector" component={WordSelector} />
+        <Stack.Screen name="Translation" component={Translation} />
       </Stack.Navigator>
     </NavigationContainer>
   );
