@@ -397,6 +397,7 @@ const styles = StyleSheet.create({
   },
   definitionContainer: {
     backgroundColor: '#F6F6F5',
+    width: wp(100),
     borderTopRightRadius: 40,
     borderTopLeftRadius: 40,
   },
