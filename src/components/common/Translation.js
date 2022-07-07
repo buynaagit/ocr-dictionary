@@ -6,11 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
 import Copy from 'react-native-vector-icons/AntDesign';
+import ArrowIcon from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Save from 'react-native-vector-icons/FontAwesome';
 import SoundIcon from 'react-native-vector-icons/AntDesign';
@@ -24,8 +26,6 @@ const Translation = props => {
   const [myData, setmyData] = useState(
     props.data ? props.data : props.route.params.data,
   );
-
-  console.log('props.route.params', props.route.params.data);
 
   const playPronunciation = data => {
     let audioSource;
@@ -48,6 +48,10 @@ const Translation = props => {
     var player = new Sound(speakMp3, null, error => {
       if (error) {
         console.log('failed to load the sound', error);
+        Toast.show({
+          type: 'error',
+          text1: 'failed to load the sound',
+        });
         setMp3Loading(false);
         return;
       }
@@ -108,7 +112,14 @@ const Translation = props => {
   };
 
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={{backgroundColor: 'white'}}>
+      {props.data == null && (
+        <TouchableOpacity
+          style={{position: 'absolute', top: 70, left: 20, zIndex: 10}}
+          onPress={() => props.navigation.pop()}>
+          <ArrowIcon name="left" size={wp(6)} color={COLORS.brandGray2} />
+        </TouchableOpacity>
+      )}
       <View style={styles.wordInfoContainer}>
         <View
           style={{
@@ -167,15 +178,21 @@ const Translation = props => {
             style={{justifyContent: 'center', marginRight: 10}}>
             <Copy name="copy1" size={wp(7)} color={COLORS.brandGray2} />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => storeData(myData.word)}
-            style={styles.buttonBookmark}>
-            {props.saved ? (
-              <Save name="bookmark" size={wp(7)} color={COLORS.brandGray2} />
-            ) : (
-              <Save name="bookmark-o" size={wp(7)} color={COLORS.brandGray2} />
-            )}
-          </TouchableOpacity>
+          {props.data && (
+            <TouchableOpacity
+              onPress={() => storeData(myData.word)}
+              style={styles.buttonBookmark}>
+              {props.saved ? (
+                <Save name="bookmark" size={wp(7)} color={COLORS.brandGray2} />
+              ) : (
+                <Save
+                  name="bookmark-o"
+                  size={wp(7)}
+                  color={COLORS.brandGray2}
+                />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
         <View
           style={{
@@ -331,7 +348,8 @@ const Translation = props => {
           </View>
         </View>
       </ScrollView>
-    </View>
+      {props.data == null && <Toast ref={ref => Toast.setRef(ref)} />}
+    </SafeAreaView>
   );
 };
 
@@ -366,6 +384,7 @@ const styles = StyleSheet.create({
   wordInfoContainer: {
     paddingVertical: 15,
     alignItems: 'center',
+    backgroundColor: 'white',
   },
   definitionContainer: {
     backgroundColor: '#F6F6F5',

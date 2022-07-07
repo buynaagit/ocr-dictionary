@@ -1,21 +1,21 @@
 import React, {useEffect, useState, useCallback} from 'react';
 
 import {
-  StyleSheet,
   Text,
   View,
-  SafeAreaView,
+  FlatList,
+  Animated,
+  StyleSheet,
   ScrollView,
+  SafeAreaView,
   RefreshControl,
   TouchableOpacity,
   TouchableHighlight,
-  FlatList,
-  Animated,
 } from 'react-native';
 
 import axios from 'axios';
 import {SwipeListView} from 'react-native-swipe-list-view';
-import Swipeable from 'react-native-swipeable';
+
 import Toast from 'react-native-toast-message';
 import {COLORS, FONTS, wp} from '../../../constants/theme';
 import ArrowIcon from 'react-native-vector-icons/AntDesign';
@@ -24,8 +24,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const Profile = ({navigation}) => {
   const [favWords, setFavWords] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [originalData, setOriginalData] = useState([]);
 
   useEffect(() => {
     getWordsFromAsync();
@@ -36,17 +37,19 @@ const Profile = ({navigation}) => {
       const favWords_ = await AsyncStorage.getItem('@favWords');
       if (favWords_ !== null) {
         let favs = JSON.parse(favWords_);
+        setOriginalData(JSON.parse(favWords_));
+        console.log('favs', favs);
         let tempData = [];
 
-        favs.map((word, index) => {
-          tempData.push({
-            key: `${index}`,
-            word: word,
-          });
-        });
+        // favs.map((word, index) => {
+        //   tempData.push({
+        //     key: `${index}`,
+        //     word: word,
+        //   });
+        // });
 
-        console.log('tempData', tempData);
-        setFavWords(tempData);
+        console.log('tempData------------------>>>>>>>>>', tempData);
+        setFavWords(favs);
         setRefreshing(false);
       }
     } catch (e) {
@@ -60,7 +63,7 @@ const Profile = ({navigation}) => {
     getWordsFromAsync();
   }, [getWordsFromAsync]);
 
-  const oxfordTranslation = async word => {
+  const navigateToTranslation = async word => {
     setLoading(true);
     axios
       .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
@@ -82,38 +85,20 @@ const Profile = ({navigation}) => {
       });
   };
 
-  const onRowDidOpen = rowKey => {
-    console.log('This row opened', rowKey);
-  };
-
-  const onLeftActionStatusChange = rowKey => {
-    console.log('onLeftActionStatusChange', rowKey);
-  };
-
-  const onRightActionStatusChange = rowKey => {
-    console.log('onRightActionStatusChange', rowKey);
-  };
-
-  const onRightAction = rowKey => {
-    console.log('onRightAction', rowKey);
-  };
-
-  const onLeftAction = rowKey => {
-    console.log('onLeftAction', rowKey);
-  };
-
-  const closeRow = (rowMap, rowKey) => {
-    if (rowMap[rowKey]) {
-      rowMap[rowKey].closeRow();
+  const closeRow = (rowMap, wordName) => {
+    if (rowMap[wordName]) {
+      rowMap[wordName].closeRow();
     }
   };
 
-  const deleteRow = (rowMap, rowKey) => {
-    closeRow(rowMap, rowKey);
-    const newData = [...favWords];
-    const prevIndex = favWords.findIndex(item => item.key === rowKey);
-    newData.splice(prevIndex, 1);
-    setFavWords(newData);
+  const storeData = async arr => {
+    try {
+      const jsonValue = JSON.stringify(arr);
+      console.log('jsonValue', jsonValue);
+      await AsyncStorage.setItem('@favWords', jsonValue);
+    } catch (e) {
+      // saving error
+    }
   };
 
   const VisibleItem = props => {
@@ -140,13 +125,13 @@ const Profile = ({navigation}) => {
         style={[styles.rowFront, {height: rowHeightAnimatedValue}]}>
         <TouchableHighlight
           style={styles.rowFrontVisible}
-          onPress={() => oxfordTranslation(data.item.word)}
+          onPress={() => navigateToTranslation(data.item)}
           underlayColor={'#aaa'}>
           <View>
             <Text
               style={[FONTS.favWord, {textAlign: 'center'}]}
               numberOfLines={1}>
-              {data.item.word}
+              {data.item}
             </Text>
           </View>
         </TouchableHighlight>
@@ -161,9 +146,21 @@ const Profile = ({navigation}) => {
       <VisibleItem
         data={data}
         rowHeightAnimatedValue={rowHeightAnimatedValue}
-        removeRow={() => deleteRow(rowMap, data.item.key)}
+        removeRow={() => deleteRow(rowMap, data.item)}
       />
     );
+  };
+
+  const deleteRow = (rowMap, wordName) => {
+    closeRow(rowMap, wordName);
+    console.log('rowKey', wordName);
+
+    const newData = [...favWords];
+    const prevIndex = favWords.findIndex(item => item.word === wordName);
+    newData.splice(prevIndex, 1);
+    storeData(newData);
+    console.log('newData', newData);
+    setFavWords(newData);
   };
 
   const HiddenItemWithActions = props => {
@@ -261,35 +258,32 @@ const Profile = ({navigation}) => {
     );
   };
 
+  const onRowDidOpen = rowKey => {
+    console.log('This row opened', rowKey);
+  };
+
+  const onLeftActionStatusChange = rowKey => {
+    console.log('onLeftActionStatusChange', rowKey);
+  };
+
+  const onRightActionStatusChange = rowKey => {
+    console.log('onRightActionStatusChange', rowKey);
+  };
+
+  const onRightAction = rowKey => {
+    console.log('onRightAction', rowKey);
+  };
+
+  const onLeftAction = rowKey => {
+    console.log('onLeftAction', rowKey);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* <ScrollView
+      <SwipeListView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }>
-        <FlatList
-          scrollEnabled={false}
-          keyExtractor={(item, index) => `key1${index}`}
-          data={favWords}
-          renderItem={({item, index}) => (
-            <View style={styles.wordContainer}>
-              <View key={`item_id=${index}`}>
-                <Text style={[FONTS.DetectedText, {color: COLORS.brandGray2}]}>
-                  {item}
-                </Text>
-              </View>
-              <View>
-                <ArrowIcon
-                  name="right"
-                  size={wp(6)}
-                  color={COLORS.brandGray2}
-                />
-              </View>
-            </View>
-          )}
-        />
-      </ScrollView> */}
-      <SwipeListView
+        }
         data={favWords}
         renderItem={renderItem}
         renderHiddenItem={renderHiddenItem}

@@ -68,6 +68,7 @@ const PERMISSION_TYPE = {
 
 export default class WordSelector extends Component {
   state = {
+    saved: false,
     userWord: '',
     errorMsg: '',
     copiedText: '',
@@ -217,6 +218,18 @@ export default class WordSelector extends Component {
   }
 
   oxfordTranslation = async word => {
+    let arr = [];
+    try {
+      const favWords = await AsyncStorage.getItem('@favWords');
+      if (favWords !== null) {
+        arr = JSON.parse(favWords);
+        arr.includes(word.toLowerCase())
+          ? this.setState({saved: true})
+          : this.setState({saved: false});
+      }
+    } catch (e) {
+      console.log('error async getData', e);
+    }
     axios
       .get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
       .then(response => {
@@ -290,6 +303,38 @@ export default class WordSelector extends Component {
         player.release();
       });
     });
+  };
+
+  storeData = async value => {
+    console.log('value', value);
+    let arr = [];
+
+    try {
+      const favWords = await AsyncStorage.getItem('@favWords');
+      if (favWords !== null) {
+        arr = JSON.parse(favWords);
+        console.log('getDatafromAsync', arr);
+      }
+    } catch (e) {
+      console.log('error storeData Async', e);
+    }
+
+    if (arr.includes(value) && arr.length > 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'You have already saved the word',
+      });
+    } else {
+      try {
+        arr.push(value);
+        const jsonValue = JSON.stringify(arr);
+        console.log('jsonValue', jsonValue);
+        this.setState({saved: true});
+        await AsyncStorage.setItem('@favWords', jsonValue);
+      } catch (e) {
+        // saving error
+      }
+    }
   };
 
   render() {
@@ -464,8 +509,22 @@ export default class WordSelector extends Component {
                                 />
                               </TouchableOpacity>
                             )}
-                            <TouchableOpacity style={styles.buttons}>
-                              <Save name="staro" size={wp(8)} color={'white'} />
+                            <TouchableOpacity
+                              onPress={() => this.storeData(oxfordDef.word)}
+                              style={styles.buttons}>
+                              {this.state.saved ? (
+                                <Save
+                                  name="star"
+                                  size={wp(8)}
+                                  color={'yellow'}
+                                />
+                              ) : (
+                                <Save
+                                  name="staro"
+                                  size={wp(8)}
+                                  color={'white'}
+                                />
+                              )}
                             </TouchableOpacity>
                             <TouchableOpacity
                               onPress={() => {

@@ -32,6 +32,7 @@ const BottomTabNavigator = route => {
           ),
         })}
       />
+
       <Tab.Screen
         name="Favourites"
         component={Favourites}
